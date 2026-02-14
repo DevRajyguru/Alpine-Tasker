@@ -12,7 +12,7 @@ function Navbar() {
 
   return (
     <nav className="py-5 px-6 lg:px-12 top-0 z-50 bg-white">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-6">
+      <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-6">
         <Link to="/" className="flex items-center">
           <img src="/images/logo.svg" alt="Alpine Tasker" className="h-9 w-auto" />
         </Link>

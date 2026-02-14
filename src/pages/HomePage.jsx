@@ -75,8 +75,8 @@ function HomePage() {
             <div className="relative w-full lg:flex-1 lg:mt-2">
               <div className="relative z-10 w-full bg-[#1e2756] rounded-3xl p-8 lg:p-12 pb-14 border border-blue-800 shadow-2xl">
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">Smart Task Posting &amp;<br />Talent Selection</h1>
-                <div className="bg-white rounded-2xl p-3 flex flex-col md:flex-row items-center gap-4 shadow-lg">
-                  <div ref={catRef} className="relative w-full md:w-[240px] border-b md:border-b-0 md:border-r border-gray-100 px-4 py-2">
+                <div className="bg-white rounded-2xl p-3 flex flex-col md:flex-row md:items-center gap-4 shadow-lg">
+                  <div ref={catRef} className="relative w-full md:flex-1 md:min-w-[220px] border-b md:border-b-0 md:border-r border-gray-100 px-4 py-2">
                     <button onClick={(e) => { e.stopPropagation(); setCatOpen((v) => !v); setLocOpen(false); }} className="flex items-center gap-3 w-full text-left cursor-pointer">
                       <div className="bg-blue-50 p-2 rounded-lg"><i className="fa-solid fa-grip text-blue-600"></i></div>
                       <div className="flex-1"><p className="text-xs text-gray-400 font-semibold uppercase">Category</p><p className="text-sm font-bold text-gray-700">{category}</p></div>
@@ -90,7 +90,7 @@ function HomePage() {
                       </div>
                     </div>
                   </div>
-                  <div ref={locRef} className="relative w-full md:w-[240px] px-4 py-2">
+                  <div ref={locRef} className="relative w-full md:flex-1 md:min-w-[220px] px-4 py-2">
                     <button onClick={(e) => { e.stopPropagation(); setLocOpen((v) => !v); setCatOpen(false); }} className="flex items-center gap-3 w-full text-left cursor-pointer">
                       <div className="bg-blue-50 p-2 rounded-lg"><i className="fa-solid fa-location-dot text-blue-600"></i></div>
                       <div className="flex-1"><p className="text-xs text-gray-400 font-semibold uppercase">Location</p><p className="text-sm font-bold text-gray-700">{location}</p></div>
@@ -104,7 +104,7 @@ function HomePage() {
                       </div>
                     </div>
                   </div>
-                  <button className="w-full md:w-auto bg-[#3288e6] text-white px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-blue-500 transition shadow-md"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
+                  <button className="w-full md:w-[170px] md:ml-auto bg-[#3288e6] text-white px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-blue-500 transition shadow-md"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
                 </div>
                 <div className="mt-8 bg-white rounded-[2rem] p-6 lg:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-visible">
                   <div className="md:pr-40">
