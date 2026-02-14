@@ -231,12 +231,12 @@ function HomePage() {
         </div>
       </section>
 
-      <section className="py-16 lg:py-20 bg-[#f7f8fb]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="relative rounded-[28px] bg-[#0f172a] px-6 py-10 lg:px-10 overflow-visible">
+      <section className="py-16 lg:py-20 bg-[#f7f8fb] overflow-hidden">
+        <div className="relative w-full bg-[#0f172a] px-6 py-10 lg:px-10 overflow-visible">
+          <div className="max-w-7xl mx-auto">
             <img src="/images/lines-left.svg" alt="" className="pointer-events-none absolute left-0 top-0 w-40 opacity-30" />
             <img src="/images/lines-right.svg" alt="" className="pointer-events-none absolute right-0 top-4 w-48 opacity-30" />
-            <div className="mt-16 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-center gap-3">
                 <span className="h-10 w-[3px] bg-white/80 rounded-full"></span>
                 <div>
@@ -279,7 +279,8 @@ function HomePage() {
             <p className="mt-3 text-sm sm:text-base text-[#1f2d6e]">Real customers share honest feedback and experiences, helping others trust our services and book confidently with complete peace of mind.</p>
           </div>
           <div className="mt-10 grid lg:grid-cols-[1.2fr_0.8fr] gap-6 items-stretch">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 border-l-[4px] border-l-[#2f87d6] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
+              <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 opacity-20" style={{ background: "url('/images/wave.svg') no-repeat center / contain" }}></div>
               <div className="flex items-center gap-3"><img src="/images/Ellipse.svg" alt="" className="h-4 w-4" /><p className="text-lg font-semibold text-[#1f2d6e]">Adam Das</p></div>
               <p className="mt-3 text-[#1f2d6e] leading-7">Excellent service, fast delivery, and top-quality product! The team was responsive, helpful, and exceeded expectations. I’m delighted with my purchase and will definitely recommend this company to friends.</p>
               <div className="mt-4 flex items-center gap-1">{[1,2,3,4,5].map((s)=><img key={s} src="/images/yellowstar.svg" alt="star" className="h-4 w-4" />)}</div>
@@ -288,7 +289,8 @@ function HomePage() {
           </div>
           <div className="mt-6 grid lg:grid-cols-[0.8fr_1.2fr] gap-6 items-stretch">
             <div className="rounded-2xl overflow-hidden h-[180px] lg:h-auto"><img src="/images/sideman.svg" alt="Customer" className="h-full w-full object-cover" /></div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 border-l-[4px] border-l-[#2f87d6] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
+              <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 opacity-20" style={{ background: "url('/images/wave.svg') no-repeat center / contain" }}></div>
               <div className="flex items-center gap-3"><img src="/images/Ellipse.svg" alt="" className="h-4 w-4" /><p className="text-lg font-semibold text-[#1f2d6e]">Adam Das</p></div>
               <p className="mt-3 text-[#1f2d6e] leading-7">Excellent service, fast delivery, and top-quality product! The team was responsive, helpful, and exceeded expectations. I’m delighted with my purchase and will definitely recommend this company to friends.</p>
               <div className="mt-4 flex items-center gap-1">{[1,2,3,4,5].map((s)=><img key={s} src="/images/yellowstar.svg" alt="star" className="h-4 w-4" />)}</div>
