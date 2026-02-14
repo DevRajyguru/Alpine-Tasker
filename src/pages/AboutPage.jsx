@@ -279,7 +279,7 @@ function AboutPage() {
                 }}
               ></div>
             </div>
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr] items-end gap-6 px-6 lg:px-10 pt-8 pb-6 sm:pb-8">
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr] items-end gap-6 px-6 lg:px-10 pt-8 pb-0">
               <div className="relative h-[240px] lg:h-[300px] overflow-visible">
                 <img src="/images/whiteman.svg" alt="Worker" className="absolute left-0 bottom-0 h-[300px] lg:h-[360px] w-auto object-contain" />
               </div>

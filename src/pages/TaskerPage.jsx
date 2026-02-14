@@ -161,7 +161,7 @@ function TaskerPage() {
             <div className="pointer-events-none absolute inset-0 rounded-[30px] overflow-hidden z-0">
               <div className="absolute -right-2 -bottom-2 w-28 h-20 opacity-90" style={{ backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.95) 2px, transparent 2px)", backgroundSize: "12px 12px" }}></div>
             </div>
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr] items-end gap-6 px-6 lg:px-10 pt-8 pb-6 sm:pb-8">
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr] items-end gap-6 px-6 lg:px-10 pt-8 pb-0">
               <div className="relative h-[240px] lg:h-[300px] overflow-visible"><img src="/images/whiteman.svg" alt="Worker" className="absolute left-0 bottom-0 h-[300px] lg:h-[360px] w-auto object-contain" /></div>
               <div className="text-white lg:pb-12">
                 <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight">Ready to Book a Service?</h2>

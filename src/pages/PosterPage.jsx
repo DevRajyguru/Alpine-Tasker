@@ -322,7 +322,7 @@ function PosterPage() {
                 style={{ backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.95) 2px, transparent 2px)", backgroundSize: "12px 12px" }}
               ></div>
             </div>
-            <div className="relative z-10 grid grid-cols-1 items-end gap-6 px-6 pb-6 pt-8 sm:pb-8 lg:grid-cols-[320px_1fr] lg:px-10">
+            <div className="relative z-10 grid grid-cols-1 items-end gap-6 px-6 pb-0 pt-8 lg:grid-cols-[320px_1fr] lg:px-10">
               <div className="relative h-[240px] overflow-visible lg:h-[300px]"><img src="/images/whiteman.svg" alt="Worker" className="absolute bottom-0 left-0 h-[300px] w-auto object-contain lg:h-[360px]" /></div>
               <div className="text-white lg:pb-12">
                 <h2 className="text-3xl sm:text-4xl font-bold leading-tight lg:text-6xl">Ready to Book a Service?</h2>

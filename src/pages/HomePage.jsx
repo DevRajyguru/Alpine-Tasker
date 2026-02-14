@@ -234,8 +234,21 @@ function HomePage() {
       <section className="py-16 lg:py-20 bg-[#f7f8fb] overflow-hidden">
         <div className="relative w-full bg-[#0f172a] px-6 py-10 lg:px-10 overflow-visible">
           <div className="max-w-7xl mx-auto">
-            <img src="/images/lines-left.svg" alt="" className="pointer-events-none absolute left-0 top-0 w-40 opacity-30" />
-            <img src="/images/lines-right.svg" alt="" className="pointer-events-none absolute right-0 top-4 w-48 opacity-30" />
+            <img
+              src="/images/waves.svg"
+              alt=""
+              className="pointer-events-none absolute left-0 top-0 w-56 opacity-25"
+            />
+            <img
+              src="/images/waves.svg"
+              alt=""
+              className="pointer-events-none absolute right-0 top-0 w-72 scale-x-[-1] opacity-25"
+            />
+            <img
+              src="/images/waves.svg"
+              alt=""
+              className="pointer-events-none absolute right-44 top-24 w-72 scale-x-[-1] opacity-20"
+            />
             <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-center gap-3">
                 <span className="h-10 w-[3px] bg-white/80 rounded-full"></span>
@@ -356,7 +369,7 @@ function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="relative rounded-[30px] bg-[#2f87d6] overflow-visible min-h-[260px] lg:min-h-[300px]">
             <div className="pointer-events-none absolute inset-0 rounded-[30px] overflow-hidden z-0"><div className="absolute -right-2 -bottom-2 w-28 h-20 opacity-90" style={{ backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.95) 2px, transparent 2px)", backgroundSize: "12px 12px" }}></div></div>
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr] items-end gap-6 px-6 lg:px-10 pt-8 pb-6 sm:pb-8">
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[320px_1fr] items-end gap-6 px-6 lg:px-10 pt-8 pb-0">
               <div className="relative h-[240px] lg:h-[300px] overflow-visible"><img src="/images/whiteman.svg" alt="Worker" className="absolute left-0 bottom-0 h-[300px] lg:h-[360px] w-auto object-contain" /></div>
               <div className="text-white lg:pb-12">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">Ready to Book a Service?</h2>
