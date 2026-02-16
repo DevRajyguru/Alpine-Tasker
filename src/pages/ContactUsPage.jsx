@@ -137,12 +137,12 @@ function ContactUsPage() {
         <section className="pb-16 lg:pb-20">
           <div className="mx-auto max-w-7xl px-6">
             <div className="relative min-h-[300px] rounded-[30px] border border-[#b9c7d8] bg-[#d7e3ee] shadow-md">
-              <img src="/images/aboutavtar.svg" alt="" className="absolute -left-5 top-20 h-16 w-16 rounded-full object-cover ring-4 ring-white" />
-              <img src="/images/aboutavtar.svg" alt="" className="absolute -top-4 left-[20%] h-16 w-16 rounded-full object-cover ring-4 ring-white" />
-              <img src="/images/aboutavtar.svg" alt="" className="absolute -top-4 left-[64%] h-16 w-16 rounded-full object-cover ring-4 ring-white" />
-              <img src="/images/aboutavtar.svg" alt="" className="absolute right-10 top-4 h-16 w-16 rounded-full object-cover ring-4 ring-white" />
-              <img src="/images/aboutavtar.svg" alt="" className="absolute bottom-2 right-[-18px] h-16 w-16 rounded-full object-cover ring-4 ring-white" />
-              <img src="/images/aboutavtar.svg" alt="" className="absolute -bottom-4 left-[32%] h-16 w-16 rounded-full object-cover ring-4 ring-white" />
+              <img src="/images/aboutavtar.svg" alt="" className="absolute -left-5 top-20 hidden h-16 w-16 rounded-full object-cover ring-4 ring-white sm:block" />
+              <img src="/images/aboutavtar.svg" alt="" className="absolute -top-4 left-[20%] hidden h-16 w-16 rounded-full object-cover ring-4 ring-white sm:block" />
+              <img src="/images/aboutavtar.svg" alt="" className="absolute -top-4 left-[64%] hidden h-16 w-16 rounded-full object-cover ring-4 ring-white sm:block" />
+              <img src="/images/aboutavtar.svg" alt="" className="absolute right-10 top-4 hidden h-16 w-16 rounded-full object-cover ring-4 ring-white sm:block" />
+              <img src="/images/aboutavtar.svg" alt="" className="absolute bottom-2 right-[-18px] hidden h-16 w-16 rounded-full object-cover ring-4 ring-white sm:block" />
+              <img src="/images/aboutavtar.svg" alt="" className="absolute -bottom-4 left-[32%] hidden h-16 w-16 rounded-full object-cover ring-4 ring-white sm:block" />
               <div className="flex min-h-[300px] items-center justify-center px-6 text-center">
                 <h3 className="max-w-4xl text-3xl sm:text-4xl font-bold leading-tight text-black lg:text-5xl">Trusted by thousands of people all over the world</h3>
               </div>
