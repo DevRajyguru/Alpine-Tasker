@@ -149,7 +149,7 @@ function AboutPage() {
               </div>
               <Link
                 to="/verified-tasker"
-                state={{ openBooking: true }}
+                state={{ openBooking: true, returnTo: "/about" }}
                 className="mt-8 inline-flex rounded-full bg-[#2f87d6] px-6 py-3 font-semibold text-white transition hover:bg-[#2478c4]"
               >
                 Post Your task for free &rarr;
