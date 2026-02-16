@@ -57,6 +57,8 @@ function VerifiedTaskerPage() {
   const [selectedTasker, setSelectedTasker] = useState(defaultTasker);
   const [eventType, setEventType] = useState("");
   const [decorationSize, setDecorationSize] = useState("");
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("");
   const [faqOpenIndex, setFaqOpenIndex] = useState(0);
   const [arrivedOtp, setArrivedOtp] = useState(["3", "4", "1", "3"]);
   const [customerOtp, setCustomerOtp] = useState(["5", "5", "2", "3"]);
@@ -119,20 +121,6 @@ function VerifiedTaskerPage() {
     }
     setBookingOpen(false);
     setBookingSummaryOpen(true);
-  };
-
-  const openNativePicker = (event, pickerType) => {
-    const input = event.currentTarget;
-    if (input.type !== pickerType) input.type = pickerType;
-    if (typeof input.showPicker === "function") {
-      try {
-        input.showPicker();
-        return;
-      } catch {
-        // Fallback to normal focus for browsers that block showPicker.
-      }
-    }
-    input.focus();
   };
 
   const payNow = () => {
@@ -376,23 +364,29 @@ function VerifiedTaskerPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="relative">
                 <input
-                  type="text"
-                  placeholder="Date"
-                  className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"
-                  onClick={(event) => openNativePicker(event, "date")}
-                  onFocus={(event) => { event.target.type = "date"; }}
-                  onBlur={(event) => { if (!event.target.value) event.target.type = "text"; }}
+                  type="date"
+                  value={bookingDate}
+                  onChange={(event) => setBookingDate(event.target.value)}
+                  className={`h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base outline-none focus:border-[#2f87d6] ${bookingDate ? "text-[#1f2d6e]" : "text-transparent"}`}
                 />
+                {!bookingDate && (
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-[#1f2d6e]">
+                    Date
+                  </span>
+                )}
               </div>
               <div className="relative">
                 <input
-                  type="text"
-                  placeholder="Time"
-                  className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-4 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"
-                  onClick={(event) => openNativePicker(event, "time")}
-                  onFocus={(event) => { event.target.type = "time"; }}
-                  onBlur={(event) => { if (!event.target.value) event.target.type = "text"; }}
+                  type="time"
+                  value={bookingTime}
+                  onChange={(event) => setBookingTime(event.target.value)}
+                  className={`h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-4 text-base outline-none focus:border-[#2f87d6] ${bookingTime ? "text-[#1f2d6e]" : "text-transparent"}`}
                 />
+                {!bookingTime && (
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-base text-[#1f2d6e]">
+                    Time
+                  </span>
+                )}
               </div>
             </div>
 
