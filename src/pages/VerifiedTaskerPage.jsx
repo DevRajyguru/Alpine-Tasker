@@ -360,8 +360,24 @@ function VerifiedTaskerPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="relative"><input type="date" className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base text-[#1f2d6e] outline-none focus:border-[#2f87d6]" /></div>
-              <div className="relative"><input type="time" className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-4 text-base text-[#1f2d6e] outline-none focus:border-[#2f87d6]" /></div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Date"
+                  className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"
+                  onFocus={(event) => { event.target.type = "date"; }}
+                  onBlur={(event) => { if (!event.target.value) event.target.type = "text"; }}
+                />
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Time"
+                  className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-4 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"
+                  onFocus={(event) => { event.target.type = "time"; }}
+                  onBlur={(event) => { if (!event.target.value) event.target.type = "text"; }}
+                />
+              </div>
             </div>
 
             <textarea placeholder="Description" rows="3" className="w-full resize-none rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 py-3 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"></textarea>
