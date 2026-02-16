@@ -257,7 +257,7 @@ function BlogPage() {
               return (
                 <article key={item.q} className="faq-item rounded-xl border border-[#d7dde9] border-l-[5px] border-l-[#1f3c87] bg-white px-6 py-5" data-open={isOpen ? "true" : "false"}>
                   <div className="flex items-center justify-between gap-4">
-                    <h3 className={`${i === 0 ? "text-sm" : "text-xl"} font-semibold text-[#1f2d6e] sm:text-xl lg:text-[20px]`}>{item.q}</h3>
+                    <h3 className="text-sm font-semibold text-[#1f2d6e] sm:text-xl lg:text-[20px]">{item.q}</h3>
                     <button
                       type="button"
                       className="faq-toggle flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-b from-[#2b4d9a] to-[#163475] text-3xl leading-none text-white shadow-md sm:h-12 sm:w-12 sm:text-4xl"
