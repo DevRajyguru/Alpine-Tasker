@@ -114,7 +114,7 @@ function HomePage() {
                   <img src="/images/man.svg" alt="Tasker" className="hidden md:block absolute right-8 bottom-0 h-[240px] object-contain z-20" />
                 </div>
               </div>
-              <div className="absolute -right-10 bottom-10 w-20 h-20 bg-[#1e2756] border-[10px] border-white rounded-full flex items-center justify-center shadow-xl z-20"><img src="/images/Arrow.svg" alt="Arrow" className="w-9 h-9 -rotate-45" /></div>
+              <div className="absolute right-2 bottom-24 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-20 flex items-center justify-center shadow-xl sm:-right-10 sm:bottom-10 sm:h-20 sm:w-20 sm:border-[10px]"><img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" /></div>
             </div>
             <div className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl translate-x-24 xl:translate-x-28 lg:mt-4">
               <img src="/images/main2.svg" alt="Kitchen interior" className="w-full h-full object-cover" />
