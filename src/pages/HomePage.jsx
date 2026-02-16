@@ -171,7 +171,7 @@ function HomePage() {
                   <img
                     src="/images/man.svg"
                     alt="Tasker"
-                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[235px] xl:h-[250px] object-contain z-20"
+                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[216px] xl:h-[232px] object-contain z-20"
                   />
                 </div>
               </div>
