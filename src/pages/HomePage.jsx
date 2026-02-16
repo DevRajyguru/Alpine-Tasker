@@ -89,6 +89,7 @@ function HomePage() {
   const [catOpen, setCatOpen] = useState(false);
   const [locOpen, setLocOpen] = useState(false);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [testimonialDirection, setTestimonialDirection] = useState("next");
   const catRef = useRef(null);
   const locRef = useRef(null);
 
@@ -331,28 +332,66 @@ function HomePage() {
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2f87d6]">What Our Customers Say</h2>
             <p className="mt-3 text-sm sm:text-base text-[#1f2d6e]">Real customers share honest feedback and experiences, helping others trust our services and book confidently with complete peace of mind.</p>
           </div>
-          <div className="mt-10 grid lg:grid-cols-[1.2fr_0.8fr] gap-6 items-stretch">
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 border-l-[4px] border-l-[#2f87d6] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
-              <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 opacity-20" style={{ background: "url('/images/wave.svg') no-repeat center / contain" }}></div>
-              <div className="flex items-center gap-3"><img src="/images/Ellipse.svg" alt="" className="h-4 w-4" /><p className="text-lg font-semibold text-[#1f2d6e]">Adam Das</p></div>
-              <p className="mt-3 text-[#1f2d6e] leading-7">Excellent service, fast delivery, and top-quality product! The team was responsive, helpful, and exceeded expectations. I’m delighted with my purchase and will definitely recommend this company to friends.</p>
-              <div className="mt-4 flex items-center gap-1">{[1,2,3,4,5].map((s)=><img key={s} src="/images/yellowstar.svg" alt="star" className="h-4 w-4" />)}</div>
+
+          <div
+            key={testimonialIndex}
+            className="mt-10"
+            style={{ animation: `${testimonialDirection === "next" ? "testimonialSlideNext" : "testimonialSlidePrev"} 420ms ease` }}
+          >
+            <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6 items-stretch">
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 border-l-[4px] border-l-[#2f87d6] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
+                <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 opacity-20" style={{ background: "url('/images/wave.svg') no-repeat center / contain" }}></div>
+                <div className="flex items-center gap-3"><img src="/images/Ellipse.svg" alt="" className="h-4 w-4" /><p className="text-lg font-semibold text-[#1f2d6e]">{testimonialSlides[testimonialIndex].top.name}</p></div>
+                <p className="mt-3 text-[#1f2d6e] leading-7">{testimonialSlides[testimonialIndex].top.text}</p>
+                <div className="mt-4 flex items-center gap-1">{[1,2,3,4,5].map((s)=><img key={`t1-${testimonialIndex}-${s}`} src="/images/yellowstar.svg" alt="star" className="h-4 w-4" />)}</div>
+              </div>
+              <div className="rounded-2xl overflow-hidden h-[180px] lg:h-auto"><img src={testimonialSlides[testimonialIndex].top.image} alt="Customer" className="h-full w-full object-cover" /></div>
             </div>
-            <div className="rounded-2xl overflow-hidden h-[180px] lg:h-auto"><img src="/images/frontman.svg" alt="Customer" className="h-full w-full object-cover" /></div>
-          </div>
-          <div className="mt-6 grid lg:grid-cols-[0.8fr_1.2fr] gap-6 items-stretch">
-            <div className="rounded-2xl overflow-hidden h-[180px] lg:h-auto"><img src="/images/sideman.svg" alt="Customer" className="h-full w-full object-cover" /></div>
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200 border-l-[4px] border-l-[#2f87d6] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
-              <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 opacity-20" style={{ background: "url('/images/wave.svg') no-repeat center / contain" }}></div>
-              <div className="flex items-center gap-3"><img src="/images/Ellipse.svg" alt="" className="h-4 w-4" /><p className="text-lg font-semibold text-[#1f2d6e]">Adam Das</p></div>
-              <p className="mt-3 text-[#1f2d6e] leading-7">Excellent service, fast delivery, and top-quality product! The team was responsive, helpful, and exceeded expectations. I’m delighted with my purchase and will definitely recommend this company to friends.</p>
-              <div className="mt-4 flex items-center gap-1">{[1,2,3,4,5].map((s)=><img key={s} src="/images/yellowstar.svg" alt="star" className="h-4 w-4" />)}</div>
+
+            <div className="mt-6 grid lg:grid-cols-[0.8fr_1.2fr] gap-6 items-stretch">
+              <div className="rounded-2xl overflow-hidden h-[180px] lg:h-auto"><img src={testimonialSlides[testimonialIndex].bottom.image} alt="Customer" className="h-full w-full object-cover" /></div>
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 border-l-[4px] border-l-[#2f87d6] bg-white p-6 shadow-[0_8px_24px_rgba(16,24,40,0.12)]">
+                <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 opacity-20" style={{ background: "url('/images/wave.svg') no-repeat center / contain" }}></div>
+                <div className="flex items-center gap-3"><img src="/images/Ellipse.svg" alt="" className="h-4 w-4" /><p className="text-lg font-semibold text-[#1f2d6e]">{testimonialSlides[testimonialIndex].bottom.name}</p></div>
+                <p className="mt-3 text-[#1f2d6e] leading-7">{testimonialSlides[testimonialIndex].bottom.text}</p>
+                <div className="mt-4 flex items-center gap-1">{[1,2,3,4,5].map((s)=><img key={`t2-${testimonialIndex}-${s}`} src="/images/yellowstar.svg" alt="star" className="h-4 w-4" />)}</div>
+              </div>
             </div>
           </div>
+
           <div className="mt-4 flex items-center justify-center gap-2 text-[#1f2d6e]">
-            <button className="text-4xl font-semibold leading-none">←</button>
-            <button className="text-4xl font-semibold leading-none text-[#2f87d6]">→</button>
+            <button
+              type="button"
+              className="text-4xl font-semibold leading-none"
+              onClick={() => {
+                setTestimonialDirection("prev");
+                setTestimonialIndex((prev) => (prev === 0 ? testimonialSlides.length - 1 : prev - 1));
+              }}
+            >
+              &larr;
+            </button>
+            <button
+              type="button"
+              className="text-4xl font-semibold leading-none text-[#2f87d6]"
+              onClick={() => {
+                setTestimonialDirection("next");
+                setTestimonialIndex((prev) => (prev + 1) % testimonialSlides.length);
+              }}
+            >
+              &rarr;
+            </button>
           </div>
+
+          <style>{`
+            @keyframes testimonialSlideNext {
+              from { opacity: 0; transform: translateX(28px); }
+              to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes testimonialSlidePrev {
+              from { opacity: 0; transform: translateX(-28px); }
+              to { opacity: 1; transform: translateX(0); }
+            }
+          `}</style>
         </div>
       </section>
 
