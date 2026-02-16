@@ -124,10 +124,13 @@ function HomePage() {
         </div>
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 relative">
-            <div className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:mt-4">
+            <div
+              className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10"
+              style={{ left: "clamp(-420px, calc((1280px - 100vw) / 2 - 70px), -70px)" }}
+            >
               <img src="/images/main1.svg" alt="Office scene" className="w-full h-full object-cover" />
             </div>
-            <div className="relative w-full lg:flex-1 lg:mt-2">
+            <div className="relative w-full lg:max-w-[860px] lg:mx-auto lg:mt-2">
               <div className="relative z-10 w-full bg-[#1e2756] rounded-3xl p-8 lg:p-12 pb-14 border border-blue-800 shadow-2xl">
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">Smart Task Posting &amp;<br />Talent Selection</h1>
                 <div className="bg-white rounded-2xl p-3 flex flex-col md:flex-row md:items-center gap-4 shadow-lg">
@@ -171,7 +174,10 @@ function HomePage() {
               </div>
               <div className="absolute right-2 bottom-24 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-20 flex items-center justify-center shadow-xl sm:-right-10 sm:bottom-10 sm:h-20 sm:w-20 sm:border-[10px]"><img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" /></div>
             </div>
-            <div className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:mt-4">
+            <div
+              className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10"
+              style={{ right: "clamp(-420px, calc((1280px - 100vw) / 2 - 70px), -70px)" }}
+            >
               <img src="/images/main2.svg" alt="Kitchen interior" className="w-full h-full object-cover" />
             </div>
           </div>
