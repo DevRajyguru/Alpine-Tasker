@@ -95,7 +95,7 @@ function AboutPage() {
       <section className="py-14 lg:py-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
-            <div className="relative max-w-[520px] mx-auto">
+            <div className="relative max-w-[520px] mx-auto lg:mx-0">
               <img src="/images/bluemen.svg" alt="Trust person" className="w-full max-w-[520px] mx-auto" />
               <div className="absolute -top-3 left-2 sm:left-0 bg-white shadow-lg rounded-2xl px-4 py-3 flex items-center gap-3 border scale-90 sm:scale-100 origin-top-left">
                 <img src="/images/girl.svg" alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
