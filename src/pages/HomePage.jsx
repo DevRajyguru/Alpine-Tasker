@@ -163,7 +163,7 @@ function HomePage() {
                   </div>
                   <button className="w-full md:w-[170px] md:ml-auto bg-[#3288e6] text-white px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-blue-500 transition shadow-md"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
                 </div>
-                <div className="mt-8 bg-white rounded-[2rem] p-6 lg:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden md:min-h-[210px] lg:min-h-0">
+                <div className="mt-8 bg-white rounded-[2rem] p-6 lg:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden lg:overflow-visible md:min-h-[210px] lg:min-h-0">
                   <div className="lg:pr-40">
                     <p className="text-gray-600 font-medium mb-5 text-lg">Turn Your Skills Into Earnings and Start Working on Your Own Schedule</p>
                     <Link to="/register" className="inline-flex items-center gap-2 bg-[#3288e6] text-white px-6 py-3 rounded-full font-bold hover:bg-blue-500 transition">Earn Money as Tasker <span>&rarr;</span></Link>
@@ -171,7 +171,7 @@ function HomePage() {
                   <img
                     src="/images/man.svg"
                     alt="Tasker"
-                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[210px] xl:h-[230px] object-contain z-20"
+                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[170px] lg:h-[255px] xl:h-[275px] object-contain z-20"
                   />
                 </div>
               </div>
