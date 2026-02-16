@@ -119,8 +119,8 @@ function HomePage() {
   return (
     <>
       <section className="relative overflow-hidden pb-24 pt-8">
-        <div className="absolute inset-x-0 bottom-6 mx-auto max-w-7xl px-6">
-          <div className="h-44 lg:h-52 bg-[#1e2756] rounded-[2.5rem]"></div>
+        <div className="absolute inset-x-0 bottom-2 lg:bottom-0 2xl:bottom-6 mx-auto max-w-7xl px-6">
+          <div className="h-36 lg:h-40 xl:h-44 2xl:h-52 bg-[#1e2756] rounded-[2.5rem]"></div>
         </div>
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 relative">
