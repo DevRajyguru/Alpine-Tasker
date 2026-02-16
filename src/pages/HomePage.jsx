@@ -130,7 +130,7 @@ function HomePage() {
               <img src="/images/main1.svg" alt="Office scene" className="w-full h-full object-cover" />
             </div>
             <div className="relative w-full lg:max-w-[950px] 2xl:max-w-[1000px] lg:mx-auto lg:mt-2">
-              <div className="relative z-10 w-full bg-[#1e2756] rounded-3xl p-[4.3rem] min-[1500px]:max-[1535px]:p-[4.4rem] min-[1900px]:p-[5.1rem] pb-14 border border-blue-800 shadow-2xl">
+              <div className="relative z-10 w-full bg-[#1e2756] rounded-3xl p-[4.3rem] min-[1500px]:max-[1535px]:p-[4.4rem] min-[1900px]:p-[5rem] pb-14 border border-blue-800 shadow-2xl">
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">Smart Task Posting &amp;<br />Talent Selection</h1>
                 <div className="bg-white rounded-2xl p-3 flex flex-col md:flex-row md:items-center gap-4 shadow-lg">
                   <div ref={catRef} className="relative w-full md:flex-1 md:min-w-[220px] border-b md:border-b-0 md:border-r border-gray-100 px-4 py-2">
