@@ -83,9 +83,9 @@ function AboutPage() {
                     </div>
                   ))}
                 </div>
-                <a href="services" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#2f87d6] px-6 py-3 text-white font-semibold">
+                <Link to="/services" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#2f87d6] px-6 py-3 text-white font-semibold">
                   Get Started &rarr;
-                </a>
+                </Link>
               </div>
             </div>
           </div>
