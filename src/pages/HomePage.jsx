@@ -44,11 +44,51 @@ const topCategories = [
   { icon: "balloon.svg", name: "Decoration" },
 ];
 
+const testimonialSlides = [
+  {
+    top: {
+      name: "Adam Das",
+      text: "Excellent service, fast delivery, and top-quality product! The team was responsive, helpful, and exceeded expectations. I'm delighted with my purchase and will definitely recommend this company to friends.",
+      image: "/images/frontman.svg",
+    },
+    bottom: {
+      name: "Don Lee",
+      text: "Excellent service, fast delivery, and top-quality product! The team was responsive, helpful, and exceeded expectations. I'm delighted with my purchase and will definitely recommend this company to friends.",
+      image: "/images/sideman.svg",
+    },
+  },
+  {
+    top: {
+      name: "Sophia Kim",
+      text: "Booking was super easy and the tasker arrived on time. The whole experience felt smooth, reliable, and professional from start to finish.",
+      image: "/images/sideman.svg",
+    },
+    bottom: {
+      name: "Michael Ross",
+      text: "Great quality work and friendly support team. I liked the clear pricing and fast confirmation. I will absolutely use this service again.",
+      image: "/images/frontman.svg",
+    },
+  },
+  {
+    top: {
+      name: "Riya Patel",
+      text: "I was impressed with how quickly everything was arranged. Communication was clear, and the final result exceeded my expectations.",
+      image: "/images/frontman.svg",
+    },
+    bottom: {
+      name: "Daniel Cruz",
+      text: "Very trustworthy platform with skilled professionals. The process was simple, and the task got done exactly the way I wanted.",
+      image: "/images/sideman.svg",
+    },
+  },
+];
+
 function HomePage() {
   const [category, setCategory] = useState("Moving");
   const [location, setLocation] = useState("Singapur");
   const [catOpen, setCatOpen] = useState(false);
   const [locOpen, setLocOpen] = useState(false);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
   const catRef = useRef(null);
   const locRef = useRef(null);
 
