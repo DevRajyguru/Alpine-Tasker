@@ -125,11 +125,11 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 relative">
             <div
-              className="hidden lg:block w-[300px] xl:w-[380px] 2xl:w-[420px] min-[1900px]:w-[470px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10 lg:left-[-320px] xl:left-[-255px] 2xl:left-[-250px]"
+              className="hidden lg:block w-[300px] xl:w-[380px] 2xl:w-[420px] min-[1900px]:w-[470px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10 lg:left-[-320px] xl:left-[-255px] 2xl:left-[-367px]"
             >
               <img src="/images/main1.svg" alt="Office scene" className="w-full h-full object-cover" />
             </div>
-            <div className="relative w-full lg:max-w-[950px] lg:mx-auto lg:mt-2">
+            <div className="relative w-full lg:max-w-[950px] 2xl:max-w-[1000px] lg:mx-auto lg:mt-2">
               <div className="relative z-10 w-full bg-[#1e2756] rounded-3xl p-8 lg:p-12 pb-14 border border-blue-800 shadow-2xl">
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">Smart Task Posting &amp;<br />Talent Selection</h1>
                 <div className="bg-white rounded-2xl p-3 flex flex-col md:flex-row md:items-center gap-4 shadow-lg">
@@ -171,14 +171,14 @@ function HomePage() {
                   <img
                     src="/images/man.svg"
                     alt="Tasker"
-                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[216px] xl:h-[232px] object-contain z-20"
+                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[216px] xl:h-[232px] 2xl:h-[212px] object-contain z-20"
                   />
                 </div>
               </div>
               <div className="absolute right-2 bottom-24 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-20 flex items-center justify-center shadow-xl sm:-right-10 sm:bottom-10 sm:h-20 sm:w-20 sm:border-[10px]"><img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" /></div>
             </div>
             <div
-              className="hidden lg:block w-[300px] xl:w-[380px] 2xl:w-[420px] min-[1900px]:w-[470px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10 lg:right-[-320px] xl:right-[-251px] 2xl:right-[-250px]"
+              className="hidden lg:block w-[300px] xl:w-[380px] 2xl:w-[420px] min-[1900px]:w-[470px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10 lg:right-[-320px] xl:right-[-251px] 2xl:right-[-368px]"
             >
               <img src="/images/main2.svg" alt="Kitchen interior" className="w-full h-full object-cover" />
             </div>
