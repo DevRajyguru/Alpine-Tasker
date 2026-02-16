@@ -216,7 +216,7 @@ function HomePage() {
       </section>
 
       <section className="py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="rounded-[28px] border border-slate-200 bg-[#f6f7f9] px-6 py-8 sm:px-10 sm:py-10 lg:px-12">
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
               <div>
@@ -288,7 +288,7 @@ function HomePage() {
 
       <section className="py-16 lg:py-20 bg-[#f7f8fb] overflow-hidden">
         <div className="relative w-full bg-[#0f172a] px-6 py-10 lg:px-10 overflow-visible">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-7xl mx-auto px-6">
             <img
               src="/images/waves.svg"
               alt=""
@@ -341,7 +341,7 @@ function HomePage() {
       </section>
 
       <section className="py-16 lg:py-20">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="text-center">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2f87d6]">What Our Customers Say</h2>
             <p className="mt-3 text-sm sm:text-base text-[#1f2d6e]">Real customers share honest feedback and experiences, helping others trust our services and book confidently with complete peace of mind.</p>
@@ -460,7 +460,7 @@ function HomePage() {
 
       <section className="relative py-16 lg:py-20 bg-[#f7f8fb] overflow-hidden">
         <img src="/images/wave-lines.svg" alt="" className="pointer-events-none absolute left-0 bottom-8 w-full opacity-40" />
-        <div className="max-w-6xl mx-auto px-6 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2f87d6]">Top Categories</h2>
             <p className="mt-3 text-base text-[#1f2d6e]">Our platform is designed with a range of innovative features that cater to your specific needs</p>

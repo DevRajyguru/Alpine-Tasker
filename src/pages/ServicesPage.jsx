@@ -67,7 +67,7 @@ function ServicesPage() {
           <div className="absolute -right-16 top-64 h-48 w-[320px] rounded-[999px] border-t border-[#bdd6f0]"></div>
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-6 py-14 sm:px-8 lg:px-10">
+        <div className="relative mx-auto max-w-7xl px-6 py-14">
           <div className="mb-8 flex flex-col gap-6 lg:mb-9 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-xl">
               <h1 className="text-3xl font-bold leading-tight text-[#2d86d8] sm:text-[44px]">Featured Categories</h1>

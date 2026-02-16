@@ -93,7 +93,7 @@ function AboutPage() {
       </section>
 
       <section className="py-14 lg:py-20">
-        <div className="max-w-8xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div className="relative max-w-[520px] mx-auto">
               <img src="/images/bluemen.svg" alt="Trust person" className="w-full max-w-[520px] mx-auto" />
