@@ -119,12 +119,12 @@ function HomePage() {
   return (
     <>
       <section className="relative overflow-hidden pb-24 pt-8">
-        <div className="absolute inset-x-0 bottom-6 mx-auto max-w-[1700px] px-3 lg:px-8">
+        <div className="absolute inset-x-0 bottom-6 mx-auto max-w-7xl px-6">
           <div className="h-44 lg:h-52 bg-[#1e2756] rounded-[2.5rem]"></div>
         </div>
-        <div className="mx-auto max-w-[1700px] px-3 lg:px-8">
+        <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 relative">
-            <div className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl -translate-x-24 xl:-translate-x-28 lg:mt-4">
+            <div className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:mt-4">
               <img src="/images/main1.svg" alt="Office scene" className="w-full h-full object-cover" />
             </div>
             <div className="relative w-full lg:flex-1 lg:mt-2">
@@ -171,7 +171,7 @@ function HomePage() {
               </div>
               <div className="absolute right-2 bottom-24 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-20 flex items-center justify-center shadow-xl sm:-right-10 sm:bottom-10 sm:h-20 sm:w-20 sm:border-[10px]"><img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" /></div>
             </div>
-            <div className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl translate-x-24 xl:translate-x-28 lg:mt-4">
+            <div className="hidden lg:block w-[320px] xl:w-[360px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:mt-4">
               <img src="/images/main2.svg" alt="Kitchen interior" className="w-full h-full object-cover" />
             </div>
           </div>
