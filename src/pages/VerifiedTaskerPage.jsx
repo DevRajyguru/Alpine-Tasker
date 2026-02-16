@@ -121,6 +121,20 @@ function VerifiedTaskerPage() {
     setBookingSummaryOpen(true);
   };
 
+  const openNativePicker = (event, pickerType) => {
+    const input = event.currentTarget;
+    if (input.type !== pickerType) input.type = pickerType;
+    if (typeof input.showPicker === "function") {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // Fallback to normal focus for browsers that block showPicker.
+      }
+    }
+    input.focus();
+  };
+
   const payNow = () => {
     if (arrivedToCustomerTimerRef.current) {
       clearTimeout(arrivedToCustomerTimerRef.current);
@@ -365,6 +379,7 @@ function VerifiedTaskerPage() {
                   type="text"
                   placeholder="Date"
                   className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"
+                  onClick={(event) => openNativePicker(event, "date")}
                   onFocus={(event) => { event.target.type = "date"; }}
                   onBlur={(event) => { if (!event.target.value) event.target.type = "text"; }}
                 />
@@ -374,6 +389,7 @@ function VerifiedTaskerPage() {
                   type="text"
                   placeholder="Time"
                   className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-4 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"
+                  onClick={(event) => openNativePicker(event, "time")}
                   onFocus={(event) => { event.target.type = "time"; }}
                   onBlur={(event) => { if (!event.target.value) event.target.type = "text"; }}
                 />
