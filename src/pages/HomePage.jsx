@@ -35,6 +35,12 @@ const blogs = [
   { image: "maintenence.svg", day: "25", title: "Easy Home Maintenance Tips", text: "Quick and practical tips to keep your home clean, safe, and well ...." },
 ];
 
+const blogSlides = [
+  blogs,
+  [blogs[1], blogs[2], blogs[0]],
+  [blogs[2], blogs[0], blogs[1]],
+];
+
 const topCategories = [
   { icon: "cleaned.svg", name: "Snow Cleaning" },
   { icon: "jug.svg", name: "Gardening/ Lawn Care" },
@@ -90,6 +96,7 @@ function HomePage() {
   const [locOpen, setLocOpen] = useState(false);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [testimonialDirection, setTestimonialDirection] = useState("next");
+  const [blogIndex, setBlogIndex] = useState(0);
   const catRef = useRef(null);
   const locRef = useRef(null);
 
@@ -100,6 +107,13 @@ function HomePage() {
     };
     window.addEventListener("click", onOutside);
     return () => window.removeEventListener("click", onOutside);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBlogIndex((prev) => (prev + 1) % blogSlides.length);
+    }, 4000);
+    return () => clearInterval(timer);
   }, []);
 
   return (
@@ -404,25 +418,43 @@ function HomePage() {
             </div>
             <Link to="blog" className="mt-1 inline-flex w-fit items-center gap-2 whitespace-nowrap rounded-full bg-[#2f87d6] px-4 py-2 text-sm font-semibold text-white">View All &rarr;</Link>
           </div>
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogs.map((blog) => (
-              <div key={blog.title} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div className="relative">
-                  <img src={`/images/${blog.image}`} alt={blog.title} className="h-48 w-full object-cover" />
-                  <div className="absolute top-3 right-3 rounded-lg bg-white px-2 py-1 text-xs font-semibold text-[#1f2d6e] text-center leading-none">{blog.day}<br /><span className="text-[10px] font-normal">Dec</span></div>
-                </div>
-                <div className="p-4">
-                  <h4 className="text-sm font-semibold text-[#2f87d6]">{blog.title}</h4>
-                  <p className="mt-2 text-xs text-[#1f2d6e]">{blog.text}</p>
-                  <div className="mt-4 flex items-center justify-between rounded-xl border border-[#e7ebf3] bg-[#f5f7fb] px-3 py-2">
-                    <div className="flex items-center gap-2 text-xs text-[#1f2d6e]"><img src="/images/avtar.svg" alt="Adam Das" className="h-6 w-6 rounded-full object-cover" />Adam Das</div>
-                    <Link to="/blog" className="text-xs font-semibold text-[#2f87d6] inline-flex items-center gap-1">Read More<img src="/images/darkarrow.svg" alt="" className="h-3 w-3" /></Link>
+          <div className="mt-8 overflow-hidden">
+            <div className="flex transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${blogIndex * 100}%)` }}>
+              {blogSlides.map((slide, slideIdx) => (
+                <div key={slideIdx} className="w-full shrink-0">
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {slide.map((blog) => (
+                      <div key={`${slideIdx}-${blog.title}`} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div className="relative">
+                          <img src={`/images/${blog.image}`} alt={blog.title} className="h-48 w-full object-cover" />
+                          <div className="absolute top-3 right-3 rounded-lg bg-white px-2 py-1 text-xs font-semibold text-[#1f2d6e] text-center leading-none">{blog.day}<br /><span className="text-[10px] font-normal">Dec</span></div>
+                        </div>
+                        <div className="p-4">
+                          <h4 className="text-sm font-semibold text-[#2f87d6]">{blog.title}</h4>
+                          <p className="mt-2 text-xs text-[#1f2d6e]">{blog.text}</p>
+                          <div className="mt-4 flex items-center justify-between rounded-xl border border-[#e7ebf3] bg-[#f5f7fb] px-3 py-2">
+                            <div className="flex items-center gap-2 text-xs text-[#1f2d6e]"><img src="/images/avtar.svg" alt="Adam Das" className="h-6 w-6 rounded-full object-cover" />Adam Das</div>
+                            <Link to="/blog" className="text-xs font-semibold text-[#2f87d6] inline-flex items-center gap-1">Read More<img src="/images/darkarrow.svg" alt="" className="h-3 w-3" /></Link>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-6 flex justify-center gap-3">
+            {blogSlides.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Go to blog slide ${i + 1}`}
+                onClick={() => setBlogIndex(i)}
+                className={`h-3 w-3 rounded-full transition-colors ${blogIndex === i ? "bg-[#2f87d6]" : "bg-[#cbd5e1]"}`}
+              />
             ))}
           </div>
-          <div className="mt-6 flex justify-center gap-3"><span className="h-3 w-3 rounded-full bg-[#2f87d6]"></span><span className="h-3 w-3 rounded-full bg-[#cbd5e1]"></span><span className="h-3 w-3 rounded-full bg-[#cbd5e1]"></span></div>
         </div>
       </section>
 
