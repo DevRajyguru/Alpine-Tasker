@@ -160,7 +160,7 @@ function BlogPage() {
       </nav>
 
       <main className="bg-[#eceef2] py-12">
-        <section className="mx-auto max-w-5xl px-5">
+        <section className="mx-auto max-w-7xl px-6">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2f87d6]">Read Our Blog</h1>
             <p className="mx-auto mt-3 max-w-3xl text-sm text-[#4f6691]">
