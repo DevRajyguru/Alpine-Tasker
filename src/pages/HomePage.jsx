@@ -168,7 +168,11 @@ function HomePage() {
                     <p className="text-gray-600 font-medium mb-5 text-lg">Turn Your Skills Into Earnings and Start Working on Your Own Schedule</p>
                     <Link to="/register" className="inline-flex items-center gap-2 bg-[#3288e6] text-white px-6 py-3 rounded-full font-bold hover:bg-blue-500 transition">Earn Money as Tasker <span>&rarr;</span></Link>
                   </div>
-                  <img src="/images/man.svg" alt="Tasker" className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[240px] object-contain z-20" />
+                  <img
+                    src="/images/man.svg"
+                    alt="Tasker"
+                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[210px] xl:h-[230px] object-contain z-20"
+                  />
                 </div>
               </div>
               <div className="absolute right-2 bottom-24 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-20 flex items-center justify-center shadow-xl sm:-right-10 sm:bottom-10 sm:h-20 sm:w-20 sm:border-[10px]"><img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" /></div>
