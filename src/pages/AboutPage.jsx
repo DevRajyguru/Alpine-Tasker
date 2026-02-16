@@ -182,26 +182,26 @@ function AboutPage() {
               <div className="relative w-full max-w-[520px] mx-auto lg:ml-auto">
                 <div className="rounded-3xl bg-[#86b4da] p-3 sm:p-5">
                   <div className="relative rounded-3xl bg-[#2f87d6] h-[430px] sm:h-[360px] overflow-hidden">
-                    <img src="/images/girl-tasker.png" alt="Tasker" className="absolute right-[-6px] sm:right-0 bottom-0 h-[76%] sm:h-[95%] w-auto object-contain" />
-                    <div className="absolute right-3 sm:right-4 -bottom-5 sm:-bottom-0 flex items-center gap-2 overflow-visible">
+                    <img src="/images/girl-tasker.png" alt="Tasker" className="absolute right-[-18px] sm:right-0 bottom-0 h-[76%] sm:h-[95%] w-auto object-contain" />
+                    <div className="absolute right-2 sm:right-4 bottom-2 sm:bottom-0 flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-white"></span>
-                      <span className="rounded-lg bg-white px-3 py-1 text-[#1f2d6e] text-lg sm:text-xl">Tasker</span>
+                      <span className="rounded-lg bg-white px-2.5 sm:px-3 py-1 text-[#1f2d6e] text-base sm:text-xl">Tasker</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="absolute left-3 sm:left-4 top-6 sm:top-10 space-y-2.5 sm:space-y-3 z-20">
-                  <div className="w-[160px] sm:w-[170px] rounded-2xl bg-white border border-slate-200 border-b-[3px] border-b-[#2f87d6] px-3 py-2.5 shadow-md text-center">
-                    <p className="text-sm sm:text-base text-[#1f2d6e]">Happy Users</p>
-                    <p className="text-xl sm:text-xl font-semibold text-[#1f2d6e] whitespace-nowrap">2M+ User</p>
+                <div className="absolute left-2.5 sm:left-4 top-3 sm:top-10 space-y-2 sm:space-y-3 z-20">
+                  <div className="w-[136px] sm:w-[170px] rounded-2xl bg-white border border-slate-200 border-b-[3px] border-b-[#2f87d6] px-2.5 sm:px-3 py-2 sm:py-2.5 shadow-md text-center">
+                    <p className="text-xs sm:text-base text-[#1f2d6e]">Happy Users</p>
+                    <p className="text-base sm:text-xl font-semibold text-[#1f2d6e] whitespace-nowrap">2M+ User</p>
                   </div>
-                  <div className="w-[160px] sm:w-[170px] rounded-2xl bg-white border border-slate-200 border-b-[3px] border-b-[#2f87d6] px-3 py-2.5 shadow-md text-center">
-                    <img src="/images/bell.svg" alt="" className="h-4 w-4 mx-auto" />
-                    <p className="mt-2 text-xl sm:text-xl font-semibold text-[#1f2d6e] whitespace-nowrap">New Job Alert</p>
+                  <div className="w-[136px] sm:w-[170px] rounded-2xl bg-white border border-slate-200 border-b-[3px] border-b-[#2f87d6] px-2.5 sm:px-3 py-2 sm:py-2.5 shadow-md text-center">
+                    <img src="/images/bell.svg" alt="" className="h-3.5 w-3.5 sm:h-4 sm:w-4 mx-auto" />
+                    <p className="mt-1.5 sm:mt-2 text-base sm:text-xl font-semibold text-[#1f2d6e] whitespace-nowrap">New Job Alert</p>
                   </div>
-                  <div className="w-[160px] sm:w-[170px] rounded-2xl bg-white border border-slate-200 border-b-[3px] border-b-[#2f87d6] px-3 py-2.5 shadow-md text-center">
-                    <p className="text-sm sm:text-base text-[#1f2d6e]">Total Earning</p>
-                    <p className="text-xl sm:text-xl font-semibold text-[#1f2d6e]">$13,066</p>
+                  <div className="w-[136px] sm:w-[170px] rounded-2xl bg-white border border-slate-200 border-b-[3px] border-b-[#2f87d6] px-2.5 sm:px-3 py-2 sm:py-2.5 shadow-md text-center">
+                    <p className="text-xs sm:text-base text-[#1f2d6e]">Total Earning</p>
+                    <p className="text-base sm:text-xl font-semibold text-[#1f2d6e]">$13,066</p>
                   </div>
                 </div>
               </div>
