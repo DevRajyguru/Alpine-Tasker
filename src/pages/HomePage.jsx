@@ -318,12 +318,12 @@ function HomePage() {
 
       <section className="py-16 bg-[#f7f8fb]">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
             <div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2f87d6]">Read Our Blog</h2>
               <p className="mt-2 max-w-2xl text-sm sm:text-base text-[#1f2d6e]">Discover practical how-to guides, service tips, and updates written to help you save time, choose better services, and stay informed with reliable, easy-to-read content.</p>
             </div>
-            <Link to="blog" className="mt-1 inline-flex items-center gap-2 rounded-full bg-[#2f87d6] px-4 py-2 text-sm font-semibold text-white">View All &rarr;</Link>
+            <Link to="blog" className="mt-1 inline-flex w-fit items-center gap-2 whitespace-nowrap rounded-full bg-[#2f87d6] px-4 py-2 text-sm font-semibold text-white">View All &rarr;</Link>
           </div>
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {blogs.map((blog) => (
@@ -374,7 +374,7 @@ function HomePage() {
               <div className="text-white lg:pb-12">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">Ready to Book a Service?</h2>
                 <p className="mt-3 text-md lg:text-xl text-white/90 max-w-3xl">Book trusted services in minutes with simple scheduling, transparent pricing, and secure payments.</p>
-                <Link to="/register" className="mt-6 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-[#1f2d6e]">Become A Tasker<img src="/images/darkarrow.svg" alt="" className="h-3 w-3" /></Link>
+                <Link to="/register" className="mt-6 mb-4 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-[#1f2d6e] sm:mb-0">Become A Tasker<img src="/images/darkarrow.svg" alt="" className="h-3 w-3" /></Link>
               </div>
             </div>
           </div>
