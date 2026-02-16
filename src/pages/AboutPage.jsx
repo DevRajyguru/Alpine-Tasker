@@ -288,7 +288,7 @@ function AboutPage() {
                 <p className="mt-3 text-lg lg:text-xl text-white/90 max-w-3xl">
                   Book trusted services in minutes with simple scheduling, transparent pricing, and secure payments.
                 </p>
-                <Link to="/register" className="mt-6 mb-4 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-[#1f2d6e] sm:mb-0">
+                <Link to="/register" className="mt-6 mb-4 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-[#1f2d6e]">
                   Become A Tasker
                   <img src="/images/darkarrow.svg" alt="" className="h-3 w-3" />
                 </Link>
@@ -339,3 +339,4 @@ function AboutPage() {
 }
 
 export default AboutPage;
+

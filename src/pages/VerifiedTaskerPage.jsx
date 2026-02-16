@@ -285,7 +285,7 @@ function VerifiedTaskerPage() {
               <div className="text-white lg:pb-12">
                 <h2 className="text-3xl sm:text-4xl font-bold leading-tight lg:text-6xl">Ready to Book a Service?</h2>
                 <p className="mt-3 max-w-3xl text-lg text-white/90 lg:text-xl">Book trusted services in minutes with simple scheduling, transparent pricing, and secure payments.</p>
-                <Link to="/register" className="mt-6 mb-4 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-[#1f2d6e] sm:mb-0">
+                <Link to="/register" className="mt-6 mb-4 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-[#1f2d6e]">
                   Become A Tasker
                   <img src="/images/darkarrow.svg" alt="" className="h-3 w-3" />
                 </Link>
@@ -545,3 +545,4 @@ function VerifiedTaskerPage() {
 }
 
 export default VerifiedTaskerPage;
+
