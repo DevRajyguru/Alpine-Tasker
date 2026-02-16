@@ -125,8 +125,7 @@ function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 relative">
             <div
-              className="hidden lg:block w-[320px] xl:w-[360px] 2xl:w-[400px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10"
-              style={{ left: "clamp(-260px, calc((1280px - 100vw) / 2 + 40px), -70px)" }}
+              className="hidden lg:block w-[300px] xl:w-[340px] 2xl:w-[380px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10 lg:left-[-176px] xl:left-[-128px] 2xl:left-[-96px]"
             >
               <img src="/images/main1.svg" alt="Office scene" className="w-full h-full object-cover" />
             </div>
@@ -175,8 +174,7 @@ function HomePage() {
               <div className="absolute right-2 bottom-24 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-20 flex items-center justify-center shadow-xl sm:-right-10 sm:bottom-10 sm:h-20 sm:w-20 sm:border-[10px]"><img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" /></div>
             </div>
             <div
-              className="hidden lg:block w-[320px] xl:w-[360px] 2xl:w-[400px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10"
-              style={{ right: "clamp(-260px, calc((1280px - 100vw) / 2 + 40px), -70px)" }}
+              className="hidden lg:block w-[300px] xl:w-[340px] 2xl:w-[380px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10 lg:right-[-176px] xl:right-[-128px] 2xl:right-[-96px]"
             >
               <img src="/images/main2.svg" alt="Kitchen interior" className="w-full h-full object-cover" />
             </div>
