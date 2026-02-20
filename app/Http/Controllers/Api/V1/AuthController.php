@@ -129,12 +129,12 @@ class AuthController extends Controller
 
     private function isRegistrationOtpRequired(): bool
     {
-        return filter_var(env('AUTH_REQUIRE_REGISTER_OTP', true), FILTER_VALIDATE_BOOLEAN);
+        return filter_var(env('AUTH_REQUIRE_REGISTER_OTP', false), FILTER_VALIDATE_BOOLEAN);
     }
 
     private function isLoginOtpRequired(): bool
     {
-        return filter_var(env('AUTH_REQUIRE_LOGIN_OTP', true), FILTER_VALIDATE_BOOLEAN);
+        return filter_var(env('AUTH_REQUIRE_LOGIN_OTP', false), FILTER_VALIDATE_BOOLEAN);
     }
 
     private function hasRecentVerifiedOtp(string $email, string $purpose): bool
