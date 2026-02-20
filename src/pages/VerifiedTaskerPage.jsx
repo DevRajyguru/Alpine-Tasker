@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 
 const taskers = [
   { image: "/images/micheal.svg", name: "Michael Reed", role: "Decorator", rate: "Starting at $20/hr", rating: "4.8" },
@@ -42,9 +43,7 @@ const faqData = [
   },
 ];
 
-const defaultTasker = { image: "/images/ryan.svg", name: "Kevin Anderson", rate: "$20/hr", rating: "4.8" };
-const randomOtp = () => Array.from({ length: 4 }, () => `${Math.floor(Math.random() * 10)}`);
-
+const defaultTasker = { id: null, image: "/images/ryan.svg", name: "Kevin Anderson", rate: "$20/hr", rating: "4.8" };
 function VerifiedTaskerPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,10 +54,20 @@ function VerifiedTaskerPage() {
   const [taskArrivedOpen, setTaskArrivedOpen] = useState(false);
   const [customerOtpOpen, setCustomerOtpOpen] = useState(false);
   const [selectedTasker, setSelectedTasker] = useState(defaultTasker);
+  const [apiTaskers, setApiTaskers] = useState([]);
+  const [apiCategories, setApiCategories] = useState([]);
+  const [loadingTaskers, setLoadingTaskers] = useState(true);
   const [eventType, setEventType] = useState("");
   const [decorationSize, setDecorationSize] = useState("");
   const [bookingDate, setBookingDate] = useState("");
   const [bookingTime, setBookingTime] = useState("");
+  const [bookingDescription, setBookingDescription] = useState("");
+  const [currentTaskId, setCurrentTaskId] = useState(null);
+  const [submittingBooking, setSubmittingBooking] = useState(false);
+  const [payingNow, setPayingNow] = useState(false);
+  const [payingAfter, setPayingAfter] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [faqOpenIndex, setFaqOpenIndex] = useState(0);
   const [arrivedOtp, setArrivedOtp] = useState(["3", "4", "1", "3"]);
   const [customerOtp, setCustomerOtp] = useState(["5", "5", "2", "3"]);
@@ -104,8 +113,62 @@ function VerifiedTaskerPage() {
     navigate(location.pathname, { replace: true, state: {} });
   }, [location.pathname, location.state, navigate]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("alpine_token");
+    if (!token) {
+      setApiTaskers(taskers);
+      setLoadingTaskers(false);
+      return;
+    }
+    (async () => {
+      try {
+        const [taskerRes, categoryRes] = await Promise.all([
+          api.get("/taskers", {
+            params: {
+              category: location.state?.searchCategory || "",
+              location: location.state?.searchLocation || "",
+            },
+          }),
+          api.get("/categories"),
+        ]);
+        const taskerRows = Array.isArray(taskerRes.data?.taskers) ? taskerRes.data.taskers : [];
+        const mapped = taskerRows.map((row, idx) => ({
+          id: row.id,
+          image: taskers[idx % taskers.length]?.image || "/images/ryan.svg",
+          name: row.name,
+          role: "Tasker",
+          rate: `Starting at $${Number(row.hourly_rate || 20).toFixed(2)}/hr`,
+          rating: String(row.average_rating || "4.8"),
+        }));
+        setApiTaskers(mapped);
+        if (mapped.length > 0) {
+          setSelectedTasker({
+            id: mapped[0].id,
+            image: mapped[0].image,
+            name: mapped[0].name,
+            rate: mapped[0].rate.replace("Starting at ", ""),
+            rating: mapped[0].rating,
+          });
+        }
+        const categories = Array.isArray(categoryRes.data?.categories) ? categoryRes.data.categories : [];
+        setApiCategories(categories);
+      } catch {
+        setApiTaskers([]);
+      } finally {
+        setLoadingTaskers(false);
+      }
+    })();
+  }, [location.state?.searchCategory, location.state?.searchLocation]);
+
+  useEffect(() => {
+    if (location.state?.searchCategory) {
+      setEventType(location.state.searchCategory);
+    }
+  }, [location.state]);
+
   const openBooking = (tasker) => {
     setSelectedTasker({
+      id: tasker.id ?? null,
       image: tasker.image,
       name: tasker.name,
       rate: tasker.rate.replace("Starting at ", ""),
@@ -114,32 +177,173 @@ function VerifiedTaskerPage() {
     setBookingOpen(true);
   };
 
-  const confirmBooking = () => {
-    if (!eventType.trim() || !decorationSize.trim()) {
-      alert("Please select Event Type and Decoration Size.");
-      return;
+  const ensureCustomer = () => {
+    const token = localStorage.getItem("alpine_token");
+    const user = JSON.parse(localStorage.getItem("alpine_user") || "null");
+    if (!token || !user) {
+      navigate("/login", { state: { returnTo: "/verified-tasker" } });
+      return null;
     }
-    setBookingOpen(false);
-    setBookingSummaryOpen(true);
+    if (user.role !== "customer") {
+      setError("Only customer accounts can book taskers from this page.");
+      return null;
+    }
+    return user;
   };
 
-  const payNow = () => {
+  const resolveCategoryId = () => {
+    const desired = (location.state?.searchCategory || eventType || "general").toLowerCase();
+    const exact = apiCategories.find((c) => String(c.name || "").toLowerCase() === desired);
+    if (exact) return exact.id;
+    const partial = apiCategories.find((c) => String(c.name || "").toLowerCase().includes(desired));
+    if (partial) return partial.id;
+    return apiCategories[0]?.id || 1;
+  };
+
+  const resolvePrice = () => {
+    const match = String(selectedTasker.rate || "").match(/(\d+(\.\d+)?)/);
+    return Math.max(1, match ? Number(match[1]) : 20);
+  };
+
+  const confirmBooking = async () => {
+    const user = ensureCustomer();
+    if (!user) return;
+    if (!eventType.trim() || !decorationSize.trim()) {
+      setError("Please select Event Type and Decoration Size.");
+      return;
+    }
+    if (!selectedTasker.id) {
+      setError("Tasker account id not found. Please login and refresh this page.");
+      return;
+    }
+
+    setSubmittingBooking(true);
+    setError("");
+    setSuccess("");
+    try {
+      const city = location.state?.searchLocation || "Dubai";
+      const price = resolvePrice();
+      const categoryId = resolveCategoryId();
+      const scheduledAt = bookingDate && bookingTime ? `${bookingDate} ${bookingTime}:00` : null;
+
+      const taskRes = await api.post("/tasks", {
+        category_id: categoryId,
+        title: `${eventType} service booking`,
+        description: bookingDescription || `${eventType} / ${decorationSize} booking`,
+        budget_estimate: price,
+        scheduled_at: scheduledAt,
+        address: `${city} - customer address`,
+        city,
+      });
+
+      const taskId = taskRes.data?.task?.id;
+      if (!taskId) {
+        throw new Error("Task not created.");
+      }
+
+      await api.post(`/tasks/${taskId}/assign/${selectedTasker.id}`, {
+        assigned_price: price,
+        event_type: eventType,
+        service_level: decorationSize,
+        preferred_date: bookingDate || null,
+        preferred_time: bookingTime || null,
+        booking_description: bookingDescription || null,
+        payment_option: "pay_now",
+        note: "Assigned from booking popup flow",
+      });
+
+      setCurrentTaskId(taskId);
+      setBookingOpen(false);
+      setBookingSummaryOpen(true);
+      setSuccess("Booking created and tasker assigned.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Booking failed. Please check your login/cookie consent and try again.");
+    } finally {
+      setSubmittingBooking(false);
+    }
+  };
+
+  const payNow = async () => {
+    const user = ensureCustomer();
+    if (!user) return;
+    if (!currentTaskId) {
+      setError("Task booking not ready. Please confirm booking first.");
+      return;
+    }
+
+    setPayingNow(true);
+    setError("");
+    setSuccess("");
+    try {
+      const price = resolvePrice();
+      await api.post(`/payments/tasks/${currentTaskId}/authorize`, {
+        task_amount: price,
+        currency: "USD",
+      });
+      const otpRes = await api.get(`/tasks/${currentTaskId}/otp`);
+      const otp = String(otpRes.data?.otp || "0000").padStart(4, "0").slice(0, 4).split("");
+
+      if (arrivedToCustomerTimerRef.current) {
+        clearTimeout(arrivedToCustomerTimerRef.current);
+        arrivedToCustomerTimerRef.current = null;
+      }
+      setArrivedOtp(otp);
+      setCustomerOtp(otp);
+      setBookingSummaryOpen(false);
+      setTaskArrivedOpen(true);
+      setSuccess("Payment authorized. OTP generated from backend.");
+      arrivedToCustomerTimerRef.current = setTimeout(() => {
+        setTaskArrivedOpen((isOpen) => {
+          if (!isOpen) return isOpen;
+          setCustomerOtpOpen(true);
+          return false;
+        });
+        arrivedToCustomerTimerRef.current = null;
+      }, 1200);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Pay now failed.");
+    } finally {
+      setPayingNow(false);
+    }
+  };
+
+  const payAfterService = async () => {
+    const user = ensureCustomer();
+    if (!user) return;
+    if (!currentTaskId) {
+      setError("Task booking not ready. Please confirm booking first.");
+      return;
+    }
+
+    setPayingAfter(true);
+    setError("");
+    setSuccess("");
+    try {
+      const price = resolvePrice();
+      await api.post(`/payments/tasks/${currentTaskId}/pay-after-service`, {
+        task_amount: price,
+        currency: "USD",
+      });
+      setBookingSummaryOpen(false);
+      setSuccess("Pay-after-service selected. Payment recorded successfully.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Pay-after-service failed.");
+    } finally {
+      setPayingAfter(false);
+    }
+  };
+
+  const displayedTaskers = apiTaskers;
+
+  const closeFlow = () => {
     if (arrivedToCustomerTimerRef.current) {
       clearTimeout(arrivedToCustomerTimerRef.current);
       arrivedToCustomerTimerRef.current = null;
     }
-    setArrivedOtp(randomOtp());
-    setCustomerOtp(randomOtp());
     setBookingSummaryOpen(false);
-    setTaskArrivedOpen(true);
-    arrivedToCustomerTimerRef.current = setTimeout(() => {
-      setTaskArrivedOpen((isOpen) => {
-        if (!isOpen) return isOpen;
-        setCustomerOtpOpen(true);
-        return false;
-      });
-      arrivedToCustomerTimerRef.current = null;
-    }, 1200);
+    setTaskArrivedOpen(false);
+    setCustomerOtpOpen(false);
+    setCurrentTaskId(null);
   };
 
   const closeTaskArrived = () => {
@@ -219,33 +423,41 @@ function VerifiedTaskerPage() {
 
       <main className="py-16 lg:py-20">
         <section className="mx-auto max-w-7xl px-6">
+          {error ? <p className="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
+          {success ? <p className="mb-4 rounded-md bg-green-50 px-4 py-3 text-sm text-green-700">{success}</p> : null}
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-[#2f87d6] lg:text-5xl">Verified Decoration Taskers</h1>
             <p className="mt-3 text-base text-[#1f2d6e] sm:text-lg">Skilled local professionals ready to help you with your task immediately.</p>
           </div>
 
-          <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
-            {taskers.map((tasker) => (
-              <article key={tasker.name} className="relative rounded-xl border border-slate-200 bg-white px-5 pb-5 pt-14 shadow-sm">
-                <img src={tasker.image} alt={tasker.name} className="absolute -top-10 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full object-cover ring-4 ring-white" />
-                <h3 className="flex items-center gap-2 text-xl font-semibold text-[#1f2d6e]">
-                  {tasker.name}
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#2f87d6] text-white">
-                    <i className="fa-solid fa-check-double text-[7px]"></i>
-                  </span>
-                </h3>
-                <div className="mt-1 flex items-center justify-between text-sm text-[#1f2d6e]">
-                  <span>{tasker.role}</span><span>{tasker.rate}</span>
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="rounded-full bg-[#eef3fb] px-3 py-1 text-sm text-[#1f2d6e]"><i className="fa-solid fa-star mr-1 text-yellow-400"></i>{tasker.rating}</span>
-                  <button type="button" className="selected-tasker-btn rounded-full bg-[#2f87d6] px-5 py-2 text-sm font-semibold text-white" onClick={() => openBooking(tasker)}>
-                    Selected Tasker
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
+          {loadingTaskers ? (
+            <div className="mt-14 rounded-xl border border-slate-200 bg-white p-8 text-center text-[#1f2d6e]">Loading taskers...</div>
+          ) : displayedTaskers.length === 0 ? (
+            <div className="mt-14 rounded-xl border border-slate-200 bg-white p-8 text-center text-[#1f2d6e]">No taskers found for selected category/location.</div>
+          ) : (
+            <div className="mt-14 grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+              {displayedTaskers.map((tasker) => (
+                <article key={tasker.id || tasker.name} className="relative rounded-xl border border-slate-200 bg-white px-5 pb-5 pt-14 shadow-sm">
+                  <img src={tasker.image} alt={tasker.name} className="absolute -top-10 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full object-cover ring-4 ring-white" />
+                  <h3 className="flex items-center gap-2 text-xl font-semibold text-[#1f2d6e]">
+                    {tasker.name}
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#2f87d6] text-white">
+                      <i className="fa-solid fa-check-double text-[7px]"></i>
+                    </span>
+                  </h3>
+                  <div className="mt-1 flex items-center justify-between text-sm text-[#1f2d6e]">
+                    <span>{tasker.role}</span><span>{tasker.rate}</span>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="rounded-full bg-[#eef3fb] px-3 py-1 text-sm text-[#1f2d6e]"><i className="fa-solid fa-star mr-1 text-yellow-400"></i>{tasker.rating}</span>
+                    <button type="button" className="selected-tasker-btn rounded-full bg-[#2f87d6] px-5 py-2 text-sm font-semibold text-white" onClick={() => openBooking(tasker)}>
+                      Selected Tasker
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
@@ -390,10 +602,10 @@ function VerifiedTaskerPage() {
               </div>
             </div>
 
-            <textarea placeholder="Description" rows="3" className="w-full resize-none rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 py-3 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"></textarea>
+            <textarea value={bookingDescription} onChange={(e) => setBookingDescription(e.target.value)} placeholder="Description" rows="3" className="w-full resize-none rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 py-3 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"></textarea>
 
-            <button id="booking-confirm-btn" type="button" className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#2f87d6] text-lg font-semibold text-white hover:bg-[#2678bf]" onClick={confirmBooking}>
-              Confirm Book
+            <button id="booking-confirm-btn" type="button" disabled={submittingBooking} className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#2f87d6] text-lg font-semibold text-white hover:bg-[#2678bf] disabled:opacity-70" onClick={confirmBooking}>
+              {submittingBooking ? "Creating Booking..." : "Confirm Book"}
             </button>
           </form>
         </div>
@@ -403,7 +615,7 @@ function VerifiedTaskerPage() {
         <div className="w-full max-w-[760px] rounded-[20px] bg-white px-6 py-6 shadow-2xl sm:px-7" role="dialog" aria-modal="true" aria-labelledby="booking-summary-title">
           <div className="relative">
             <h3 id="booking-summary-title" className="text-center text-2xl font-semibold text-[#2f87d6]">Booking Summary</h3>
-            <button id="booking-summary-close" type="button" className="absolute -top-1 right-0 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d5dfef] bg-[#f4f8ff] text-[#2f87d6]" aria-label="Close booking summary" onClick={() => setBookingSummaryOpen(false)}>
+            <button id="booking-summary-close" type="button" className="absolute -top-1 right-0 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d5dfef] bg-[#f4f8ff] text-[#2f87d6]" aria-label="Close booking summary" onClick={closeFlow}>
               <i className="fa-solid fa-xmark text-lg"></i>
             </button>
           </div>
@@ -436,15 +648,15 @@ function VerifiedTaskerPage() {
                   </div>
                 </div>
                 <div className="mt-3 h-px w-full bg-[#d8dce5]"></div>
-                <p className="mt-3 text-md font-semibold text-[#1f2d6e]">Total Price : $20</p>
+                <p className="mt-3 text-md font-semibold text-[#1f2d6e]">Total Price : ${resolvePrice().toFixed(2)}</p>
               </div>
             </article>
           </div>
 
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <button id="pay-now-btn" type="button" className="inline-flex h-12 min-w-[190px] items-center justify-center rounded-full bg-[#2f87d6] px-8 text-md font-semibold text-white" onClick={payNow}>Pay Now</button>
+            <button id="pay-now-btn" type="button" disabled={payingNow} className="inline-flex h-12 min-w-[190px] items-center justify-center rounded-full bg-[#2f87d6] px-8 text-md font-semibold text-white disabled:opacity-70" onClick={payNow}>{payingNow ? "Processing..." : "Pay Now"}</button>
             <span className="text-4xl text-[#2f87d6]">Or</span>
-            <button type="button" className="inline-flex h-12 min-w-[260px] items-center justify-center rounded-full border-2 border-[#2f87d6] px-8 text-md font-semibold text-[#2f87d6]">Pay After Service</button>
+            <button type="button" disabled={payingAfter} onClick={payAfterService} className="inline-flex h-12 min-w-[260px] items-center justify-center rounded-full border-2 border-[#2f87d6] px-8 text-md font-semibold text-[#2f87d6] disabled:opacity-70">{payingAfter ? "Processing..." : "Pay After Service"}</button>
           </div>
         </div>
       </div>
@@ -486,7 +698,7 @@ function VerifiedTaskerPage() {
               ))}
             </div>
             <p className="mt-5 text-2xl text-[#3f5a91]">Share This OTP With The Tasker</p>
-            <button type="button" className="mt-4 inline-flex h-12 min-w-[210px] items-center justify-center rounded-full bg-[#2f87d6] px-7 text-md font-semibold text-white hover:bg-[#2678bf]">Verify & Start Work</button>
+            <button type="button" className="mt-4 inline-flex h-12 min-w-[210px] items-center justify-center rounded-full bg-[#2f87d6] px-7 text-md font-semibold text-white hover:bg-[#2678bf]" onClick={() => { setCustomerOtpOpen(false); setSuccess("OTP shared. Tasker can now verify OTP and start from Tasker Dashboard."); }}>Verify & Start Work</button>
           </div>
         </div>
       </div>

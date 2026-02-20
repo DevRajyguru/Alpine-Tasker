@@ -1,8 +1,100 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 
 function LoginHtmlPage() {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const sendOtp = async () => {
+    if (!email.trim()) {
+      setError("Enter email first to receive OTP.");
+      return;
+    }
+    setOtpSending(true);
+    setError("");
+    setSuccess("");
+    try {
+      await api.post("/auth/otp/send", {
+        email,
+        purpose: "login",
+      });
+      setSuccess("OTP sent to your email.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to send OTP.");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const verifyOtp = async () => {
+    if (!email.trim()) {
+      setError("Enter email first.");
+      return;
+    }
+    if (!otp.trim()) {
+      setError("Enter OTP first.");
+      return;
+    }
+    setOtpVerifying(true);
+    setError("");
+    setSuccess("");
+    try {
+      await api.post("/auth/otp/verify", {
+        email,
+        purpose: "login",
+        otp,
+      });
+      setSuccess("OTP verified. You can login now.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "OTP verification failed.");
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+        device_name: "web-ui",
+      });
+
+      localStorage.setItem("alpine_token", response.data.token);
+      localStorage.setItem("alpine_user", JSON.stringify(response.data.user));
+      setSuccess("Login successful. Redirecting...");
+
+      setTimeout(() => {
+        if (response?.data?.user?.role === "customer") {
+          navigate("/customer/tasks");
+        } else if (response?.data?.user?.role === "tasker") {
+          navigate("/tasker/dashboard");
+        } else if (response?.data?.user?.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      }, 600);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Login failed. Check your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-[#f1f3f6] text-slate-900">
@@ -60,15 +152,64 @@ function LoginHtmlPage() {
                 <h1 className="text-4xl sm:text-5xl font-bold text-[#2f87d6]">Log in</h1>
                 <p className="mt-2 text-lg sm:text-xl text-[#1f2d6e]">Welcome To Alpine Tasker</p>
 
-                <form className="mt-5 space-y-4">
+                <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+                  {error ? (
+                    <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+                  ) : null}
+                  {success ? (
+                    <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">{success}</p>
+                  ) : null}
+
                   <div>
                     <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">Email* *</label>
-                    <input type="text" placeholder="Email or Username" className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Email"
+                      className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                    />
                   </div>
 
                   <div>
                     <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">Password* *</label>
-                    <input type="password" placeholder="********" className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="********"
+                      className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                    />
+                  </div>
+
+                  <div className="rounded-lg border border-slate-200 bg-white p-3">
+                    <p className="text-sm font-semibold text-[#1f2d6e]">Email OTP Verification</p>
+                    <p className="mt-1 text-xs text-slate-500">Use this if login asks for email verification.</p>
+                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      <input
+                        type="text"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder="Enter 6-digit OTP"
+                        className="h-11 rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6] sm:col-span-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={sendOtp}
+                        disabled={otpSending}
+                        className="h-11 rounded-full bg-[#1e2756] px-4 text-sm font-semibold text-white hover:bg-[#19204a] disabled:opacity-70"
+                      >
+                        {otpSending ? "Sending..." : "Send OTP"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={verifyOtp}
+                        disabled={otpVerifying}
+                        className="h-11 rounded-full bg-[#1e2756] px-4 text-sm font-semibold text-white hover:bg-[#19204a] disabled:opacity-70"
+                      >
+                        {otpVerifying ? "Verifying..." : "Verify OTP"}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
@@ -79,8 +220,12 @@ function LoginHtmlPage() {
                     <a href="signup" className="text-[#2f87d6] hover:underline">Forgot Password?</a>
                   </div>
 
-                  <button type="button" className="h-11 w-full rounded-full bg-[#1e2756] text-base font-semibold text-white hover:bg-[#19204a]">
-                    login
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="h-11 w-full rounded-full bg-[#1e2756] text-base font-semibold text-white hover:bg-[#19204a] disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {loading ? "Logging in..." : "Login"}
                   </button>
                 </form>
 

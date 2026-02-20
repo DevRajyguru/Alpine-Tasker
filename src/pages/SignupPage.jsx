@@ -1,8 +1,125 @@
-import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useNavigate, useSearchParams } from "react-router-dom";
+import { api } from "../lib/api";
 
 function SignupPage() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
+  const [role, setRole] = useState("customer");
+  const [otp, setOtp] = useState("");
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    const queryRole = searchParams.get("role");
+    if (queryRole === "customer" || queryRole === "tasker") {
+      setRole(queryRole);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    setOtpVerified(false);
+    setOtp("");
+  }, [email, role]);
+
+  const sendOtp = async () => {
+    if (!email.trim()) {
+      setError("Enter email first to receive OTP.");
+      return;
+    }
+    setOtpSending(true);
+    setError("");
+    setSuccess("");
+    try {
+      await api.post("/auth/otp/send", {
+        email,
+        purpose: "register",
+      });
+      setSuccess("OTP sent to your email.");
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to send OTP.");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const verifyOtp = async () => {
+    if (!email.trim()) {
+      setError("Enter email first.");
+      return;
+    }
+    if (!otp.trim()) {
+      setError("Enter OTP first.");
+      return;
+    }
+    setOtpVerifying(true);
+    setError("");
+    setSuccess("");
+    try {
+      await api.post("/auth/otp/verify", {
+        email,
+        purpose: "register",
+        otp,
+      });
+      setOtpVerified(true);
+      setSuccess("OTP verified successfully.");
+    } catch (err) {
+      setOtpVerified(false);
+      setError(err?.response?.data?.message || "OTP verification failed.");
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    const fullName = `${firstName} ${lastName}`.trim() || username.trim();
+
+    try {
+      const response = await api.post("/auth/register", {
+        name: fullName,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+        role,
+      });
+
+      localStorage.setItem("alpine_token", response.data.token);
+      localStorage.setItem("alpine_user", JSON.stringify(response.data.user));
+      setSuccess("Account created successfully. Redirecting...");
+
+      setTimeout(() => {
+        if (response?.data?.user?.role === "customer") {
+          navigate("/customer/tasks");
+        } else if (response?.data?.user?.role === "tasker") {
+          navigate("/tasker/dashboard");
+        } else if (response?.data?.user?.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      }, 700);
+    } catch (err) {
+      setError(err?.response?.data?.message || "Registration failed. Please check form values.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-[#f1f3f6] text-slate-900">
@@ -60,28 +177,117 @@ function SignupPage() {
                 <h1 className="text-4xl sm:text-5xl font-bold text-[#2f87d6]">Sign up</h1>
                 <p className="mt-2 text-lg sm:text-xl text-[#1f2d6e]">Welcome To Alpine Tasker</p>
 
-                <form className="mt-5 space-y-4">
+                <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+                  {error ? (
+                    <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+                  ) : null}
+                  {success ? (
+                    <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">{success}</p>
+                  ) : null}
+
+                  <div className="rounded-lg bg-[#f3f5f8] px-4 py-3 text-sm text-[#1f2d6e]">
+                    Selected Role: <span className="font-semibold capitalize">{role}</span>
+                  </div>
+
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">First Name* *</label>
-                      <input type="text" placeholder="First Name" className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]" />
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="First Name"
+                        className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                      />
                     </div>
                     <div>
                       <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">Last Name* *</label>
-                      <input type="text" placeholder="Last Name" className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]" />
+                      <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Last Name"
+                        className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                      />
                     </div>
                     <div>
                       <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">Username* *</label>
-                      <input type="text" placeholder="Username" className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]" />
+                      <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Username"
+                        className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                      />
                     </div>
                     <div>
                       <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">Email* *</label>
-                      <input type="email" placeholder="Email" className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email"
+                        className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">Password* *</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="********"
+                        className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-lg sm:text-xl font-semibold text-[#1f2d6e]">Confirm Password* *</label>
+                      <input
+                        type="password"
+                        value={passwordConfirmation}
+                        onChange={(e) => setPasswordConfirmation(e.target.value)}
+                        placeholder="********"
+                        className="mt-2 h-12 w-full rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6]"
+                      />
                     </div>
                   </div>
 
-                  <button type="button" className="h-11 w-full rounded-full bg-[#1e2756] text-base font-semibold text-white hover:bg-[#19204a]">
-                    Create Account
+                  <div className="rounded-lg border border-slate-200 bg-white p-3">
+                    <p className="text-sm font-semibold text-[#1f2d6e]">Email OTP Verification</p>
+                    <p className="mt-1 text-xs text-slate-500">Optional for now (temporary).</p>
+                    <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      <input
+                        type="text"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        placeholder="Enter 6-digit OTP"
+                        className="h-11 rounded-lg bg-[#f3f5f8] px-4 text-base text-[#1f2d6e] outline-none placeholder:text-slate-400 focus:ring-1 focus:ring-[#2f87d6] sm:col-span-1"
+                      />
+                      <button
+                        type="button"
+                        onClick={sendOtp}
+                        disabled={otpSending}
+                        className="h-11 rounded-full bg-[#1e2756] px-4 text-sm font-semibold text-white hover:bg-[#19204a] disabled:opacity-70"
+                      >
+                        {otpSending ? "Sending..." : "Send OTP"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={verifyOtp}
+                        disabled={otpVerifying}
+                        className="h-11 rounded-full bg-[#1e2756] px-4 text-sm font-semibold text-white hover:bg-[#19204a] disabled:opacity-70"
+                      >
+                        {otpVerifying ? "Verifying..." : otpVerified ? "Verified" : "Verify OTP"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="h-11 w-full rounded-full bg-[#1e2756] text-base font-semibold text-white hover:bg-[#19204a] disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {loading ? "Creating..." : "Create Account"}
                   </button>
                 </form>
 

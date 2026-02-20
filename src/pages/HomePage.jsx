@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 
-const categories = ["Moving", "Delivery", "Cleaning"];
+const categories = [
+  "Moving",
+  "Delivery",
+  "Cleaning",
+  "Snow Cleaning",
+  "Gardening",
+  "Mounting",
+  "Assembly",
+  "Decoration",
+];
 const locations = ["Singapur", "Dubai", "New York"];
 
 const statCards = [
@@ -90,6 +100,7 @@ const testimonialSlides = [
 ];
 
 function HomePage() {
+  const navigate = useNavigate();
   const [category, setCategory] = useState("Moving");
   const [location, setLocation] = useState("Singapur");
   const [catOpen, setCatOpen] = useState(false);
@@ -97,8 +108,30 @@ function HomePage() {
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [testimonialDirection, setTestimonialDirection] = useState("next");
   const [blogIndex, setBlogIndex] = useState(0);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingSummaryOpen, setBookingSummaryOpen] = useState(false);
+  const [taskArrivedOpen, setTaskArrivedOpen] = useState(false);
+  const [customerOtpOpen, setCustomerOtpOpen] = useState(false);
+  const [eventType, setEventType] = useState("");
+  const [decorationSize, setDecorationSize] = useState("");
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("");
+  const [bookingDescription, setBookingDescription] = useState("");
+  const [selectedTaskerId, setSelectedTaskerId] = useState("");
+  const [apiTaskers, setApiTaskers] = useState([]);
+  const [apiCategories, setApiCategories] = useState([]);
+  const [loadingTaskers, setLoadingTaskers] = useState(false);
+  const [currentTaskId, setCurrentTaskId] = useState(null);
+  const [arrivedOtp, setArrivedOtp] = useState(["0", "0", "0", "0"]);
+  const [customerOtp, setCustomerOtp] = useState(["0", "0", "0", "0"]);
+  const [loadingBooking, setLoadingBooking] = useState(false);
+  const [payingNow, setPayingNow] = useState(false);
+  const [payingAfter, setPayingAfter] = useState(false);
+  const [flowError, setFlowError] = useState("");
+  const [flowSuccess, setFlowSuccess] = useState("");
   const catRef = useRef(null);
   const locRef = useRef(null);
+  const arrivedToCustomerTimerRef = useRef(null);
 
   useEffect(() => {
     const onOutside = (event) => {
@@ -116,11 +149,250 @@ function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem("alpine_token");
+    if (!token) return;
+    (async () => {
+      try {
+        const categoryRowsRes = await api.get("/categories");
+        const categoryRows = Array.isArray(categoryRowsRes.data?.categories) ? categoryRowsRes.data.categories : [];
+        setApiCategories(categoryRows);
+      } catch {
+        // keep static UI if categories load fails
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("alpine_token");
+    if (!token) {
+      setApiTaskers([]);
+      setSelectedTaskerId("");
+      return;
+    }
+    (async () => {
+      setLoadingTaskers(true);
+      try {
+        const taskerRes = await api.get("/taskers", {
+          params: {
+            category,
+            location,
+          },
+        });
+        const taskerRows = Array.isArray(taskerRes.data?.taskers) ? taskerRes.data.taskers : [];
+        setApiTaskers(taskerRows);
+        setSelectedTaskerId((prev) => {
+          if (taskerRows.length === 0) return "";
+          const hasCurrent = taskerRows.some((row) => String(row.id) === String(prev));
+          return hasCurrent ? prev : String(taskerRows[0].id);
+        });
+      } catch {
+        setApiTaskers([]);
+        setSelectedTaskerId("");
+      } finally {
+        setLoadingTaskers(false);
+      }
+    })();
+  }, [category, location]);
+
+  useEffect(() => {
+    const anyModalOpen = bookingOpen || bookingSummaryOpen || taskArrivedOpen || customerOtpOpen;
+    if (anyModalOpen) document.body.classList.add("overflow-hidden");
+    else document.body.classList.remove("overflow-hidden");
+    return () => document.body.classList.remove("overflow-hidden");
+  }, [bookingOpen, bookingSummaryOpen, taskArrivedOpen, customerOtpOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (arrivedToCustomerTimerRef.current) clearTimeout(arrivedToCustomerTimerRef.current);
+    };
+  }, []);
+
+  const handleSearch = () => {
+    const guestToken = (() => {
+      const existing = localStorage.getItem("alpine_guest_token");
+      if (existing) return existing;
+      const created = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem("alpine_guest_token", created);
+      return created;
+    })();
+
+    api
+      .post("/search-events", {
+        category,
+        location,
+        source: "home_search",
+        guest_token: localStorage.getItem("alpine_token") ? null : guestToken,
+      })
+      .catch(() => {
+        // Do not block navigation if logging fails.
+      })
+      .finally(() => {
+        navigate("/verified-tasker", {
+          state: {
+            searchCategory: category,
+            searchLocation: location,
+          },
+        });
+      });
+  };
+
+  const ensureCustomer = () => {
+    const token = localStorage.getItem("alpine_token");
+    const user = JSON.parse(localStorage.getItem("alpine_user") || "null");
+    if (!token || !user) {
+      navigate("/login", { state: { returnTo: "/" } });
+      return null;
+    }
+    if (user.role !== "customer") {
+      setFlowError("Please login with customer account to book task.");
+      return null;
+    }
+    return user;
+  };
+
+  const resolveCategoryId = () => {
+    const desired = (category || eventType || "general").toLowerCase();
+    const exact = apiCategories.find((c) => String(c.name || "").toLowerCase() === desired);
+    if (exact) return exact.id;
+    const partial = apiCategories.find((c) => String(c.name || "").toLowerCase().includes(desired));
+    if (partial) return partial.id;
+    return apiCategories[0]?.id || 1;
+  };
+
+  const selectedTasker = apiTaskers.find((t) => String(t.id) === String(selectedTaskerId)) || apiTaskers[0] || null;
+  const selectedPrice = Math.max(1, Number(selectedTasker?.hourly_rate || 20));
+
+  const openBookingFlow = () => {
+    const user = ensureCustomer();
+    if (!user) return;
+    setFlowError("");
+    setFlowSuccess("");
+    setEventType(category);
+    setBookingOpen(true);
+  };
+
+  const confirmBooking = async () => {
+    const user = ensureCustomer();
+    if (!user) return;
+    if (!eventType.trim() || !decorationSize.trim()) {
+      setFlowError("Please select Event Type and Decoration Size.");
+      return;
+    }
+    if (loadingTaskers) {
+      setFlowError("Taskers are loading. Please wait a second and try again.");
+      return;
+    }
+    if (!selectedTaskerId) {
+      setFlowError("Please select tasker first.");
+      return;
+    }
+    setLoadingBooking(true);
+    setFlowError("");
+    setFlowSuccess("");
+    try {
+      const scheduledAt = bookingDate && bookingTime ? `${bookingDate} ${bookingTime}:00` : null;
+      const categoryId = resolveCategoryId();
+      const taskRes = await api.post("/tasks", {
+        category_id: categoryId,
+        title: `${eventType} service booking`,
+        description: bookingDescription || `${eventType} / ${decorationSize} booking`,
+        budget_estimate: selectedPrice,
+        scheduled_at: scheduledAt,
+        address: `${location} - customer address`,
+        city: location,
+      });
+      const taskId = taskRes.data?.task?.id;
+      if (!taskId) throw new Error("Task creation failed.");
+
+      await api.post(`/tasks/${taskId}/assign/${selectedTaskerId}`, {
+        assigned_price: selectedPrice,
+        event_type: eventType,
+        service_level: decorationSize,
+        preferred_date: bookingDate || null,
+        preferred_time: bookingTime || null,
+        booking_description: bookingDescription || null,
+        payment_option: "pay_now",
+        note: "Assigned from home booking popup",
+      });
+
+      setCurrentTaskId(taskId);
+      setBookingOpen(false);
+      setBookingSummaryOpen(true);
+      setFlowSuccess("Booking created and tasker assigned.");
+    } catch (err) {
+      setFlowError(err?.response?.data?.message || "Booking failed. Check login/cookie consent.");
+    } finally {
+      setLoadingBooking(false);
+    }
+  };
+
+  const payNow = async () => {
+    if (!currentTaskId) {
+      setFlowError("Task booking not ready.");
+      return;
+    }
+    setPayingNow(true);
+    setFlowError("");
+    try {
+      await api.post(`/payments/tasks/${currentTaskId}/authorize`, {
+        task_amount: selectedPrice,
+        currency: "USD",
+      });
+      const otpRes = await api.get(`/tasks/${currentTaskId}/otp`);
+      const otp = String(otpRes.data?.otp || "0000").padStart(4, "0").slice(0, 4).split("");
+      setArrivedOtp(otp);
+      setCustomerOtp(otp);
+      setBookingSummaryOpen(false);
+      setTaskArrivedOpen(true);
+      arrivedToCustomerTimerRef.current = setTimeout(() => {
+        setTaskArrivedOpen(false);
+        setCustomerOtpOpen(true);
+      }, 1200);
+    } catch (err) {
+      setFlowError(err?.response?.data?.message || "Pay now failed.");
+    } finally {
+      setPayingNow(false);
+    }
+  };
+
+  const payAfterService = async () => {
+    if (!currentTaskId) {
+      setFlowError("Task booking not ready.");
+      return;
+    }
+    setPayingAfter(true);
+    setFlowError("");
+    try {
+      await api.post(`/payments/tasks/${currentTaskId}/pay-after-service`, {
+        task_amount: selectedPrice,
+        currency: "USD",
+      });
+      setBookingSummaryOpen(false);
+      setFlowSuccess("Pay-after-service selected successfully.");
+    } catch (err) {
+      setFlowError(err?.response?.data?.message || "Pay-after-service failed.");
+    } finally {
+      setPayingAfter(false);
+    }
+  };
+
+  const closeAllBookingModals = () => {
+    if (arrivedToCustomerTimerRef.current) {
+      clearTimeout(arrivedToCustomerTimerRef.current);
+      arrivedToCustomerTimerRef.current = null;
+    }
+    setBookingOpen(false);
+    setBookingSummaryOpen(false);
+    setTaskArrivedOpen(false);
+    setCustomerOtpOpen(false);
+  };
+
   return (
     <>
       <section className="relative overflow-hidden pb-24 pt-8">
-        <div className="absolute inset-x-0 bottom-2 lg:bottom-0 2xl:bottom-6 mx-auto max-w-7xl px-6">
-          <div className="h-36 lg:h-40 xl:h-44 2xl:h-52 bg-[#1e2756] rounded-[2.5rem]"></div>
+        <div className="absolute inset-x-0 -bottom-5 lg:-bottom-6 2xl:-bottom-5 mx-auto max-w-7xl px-6 z-0">
+          <div className="h-28 lg:h-32 xl:h-36 2xl:h-40 bg-[#1e2756] rounded-[2.5rem]"></div>
         </div>
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 relative">
@@ -130,7 +402,7 @@ function HomePage() {
               <img src="/images/main1.svg" alt="Office scene" className="w-full h-full object-cover" />
             </div>
             <div className="relative w-full lg:max-w-[950px] 2xl:max-w-[1000px] lg:mx-auto lg:mt-2">
-              <div className="relative z-10 w-full bg-[#1e2756] rounded-3xl p-[4.6rem] min-[1500px]:max-[1535px]:p-[4.4rem] min-[1700px]:p-[5rem] min-[1900px]:p-[5rem] pb-14 border border-blue-800 shadow-2xl">
+              <div className="relative z-30 w-full bg-[#1e2756] rounded-3xl p-[4.6rem] min-[1500px]:max-[1535px]:p-[4.4rem] min-[1700px]:p-[5rem] min-[1900px]:p-[5rem] pb-16 border border-blue-800 shadow-2xl">
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight">Smart Task Posting &amp;<br />Talent Selection</h1>
                 <div className="bg-white rounded-2xl p-3 flex flex-col md:flex-row md:items-center gap-4 shadow-lg">
                   <div ref={catRef} className="relative w-full md:flex-1 md:min-w-[220px] border-b md:border-b-0 md:border-r border-gray-100 px-4 py-2">
@@ -140,9 +412,15 @@ function HomePage() {
                       <i className="fa-solid fa-chevron-down w-4 h-4 text-gray-400"></i>
                     </button>
                     <div className={`${catOpen ? "block" : "hidden"} absolute left-0 top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 z-50`}>
-                      <div className="py-2">
+                      <div className="p-2">
                         {categories.map((item) => (
-                          <button key={item} onClick={(e) => { e.stopPropagation(); setCategory(item); setCatOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm">{item}</button>
+                          <button
+                            key={item}
+                            onClick={(e) => { e.stopPropagation(); setCategory(item); setCatOpen(false); }}
+                            className={`mb-1 w-full rounded-xl px-4 py-2 text-left text-sm font-medium ${category === item ? "bg-[#eef3fb] text-[#1f2d6e]" : "bg-[#f7f9fd] text-[#334155] hover:bg-[#eef3fb]"}`}
+                          >
+                            {item}
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -154,16 +432,24 @@ function HomePage() {
                       <i className="fa-solid fa-chevron-down w-4 h-4 text-gray-400"></i>
                     </button>
                     <div className={`${locOpen ? "block" : "hidden"} absolute left-0 top-full mt-2 w-full bg-white rounded-xl shadow-xl border border-gray-100 z-50`}>
-                      <div className="py-2">
+                      <div className="p-2">
                         {locations.map((item) => (
-                          <button key={item} onClick={(e) => { e.stopPropagation(); setLocation(item); setLocOpen(false); }} className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm">{item}</button>
+                          <button
+                            key={item}
+                            onClick={(e) => { e.stopPropagation(); setLocation(item); setLocOpen(false); }}
+                            className={`mb-1 w-full rounded-xl px-4 py-2 text-left text-sm font-medium ${location === item ? "bg-[#eef3fb] text-[#1f2d6e]" : "bg-[#f7f9fd] text-[#334155] hover:bg-[#eef3fb]"}`}
+                          >
+                            {item}
+                          </button>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <button className="w-full md:w-[170px] md:ml-auto bg-[#3288e6] text-white px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-blue-500 transition shadow-md"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
+                  <button type="button" onClick={handleSearch} className="w-full md:w-[170px] md:ml-auto bg-[#3288e6] text-white px-8 py-3 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-blue-500 transition shadow-md"><i className="fa-solid fa-magnifying-glass"></i>Search</button>
                 </div>
-                <div className="mt-8 bg-white rounded-[2rem] p-6 lg:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden lg:overflow-visible md:min-h-[210px] lg:min-h-0">
+              </div>
+              <div className="relative mt-3 lg:mt-4">
+                <div className="bg-white rounded-[2rem] border border-slate-200 p-6 lg:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-visible md:min-h-[210px] lg:min-h-0">
                   <div className="lg:pr-40">
                     <p className="text-gray-600 font-medium mb-5 text-lg">Turn Your Skills Into Earnings and Start Working on Your Own Schedule</p>
                     <Link to="/register" className="inline-flex items-center gap-2 bg-[#3288e6] text-white px-6 py-3 rounded-full font-bold hover:bg-blue-500 transition">Earn Money as Tasker <span>&rarr;</span></Link>
@@ -171,11 +457,13 @@ function HomePage() {
                   <img
                     src="/images/man.svg"
                     alt="Tasker"
-                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[165px] lg:h-[216px] xl:h-[232px] 2xl:h-[212px] object-contain z-20"
+                    className="hidden md:block absolute right-2 md:right-4 lg:right-8 bottom-0 h-[170px] lg:h-[235px] xl:h-[246px] 2xl:h-[232px] object-contain z-40"
                   />
                 </div>
               </div>
-              <div className="absolute right-2 bottom-24 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-20 flex items-center justify-center shadow-xl sm:-right-10 sm:bottom-10 sm:h-20 sm:w-20 sm:border-[10px]"><img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" /></div>
+              <div className="absolute right-0 top-[75%] -translate-y-1/2 h-16 w-16 rounded-full border-[8px] border-white bg-[#1e2756] z-30 flex items-center justify-center shadow-xl sm:h-20 sm:w-20 sm:border-[10px] lg:top-[77%] lg:-right-9 xl:-right-11 2xl:-right-12">
+                <img src="/images/Arrow.svg" alt="Arrow" className="h-7 w-7 -rotate-45 sm:h-9 sm:w-9" />
+              </div>
             </div>
             <div
               className="hidden lg:block w-[300px] xl:w-[380px] 2xl:w-[420px] min-[1900px]:w-[470px] h-[560px] rounded-3xl overflow-hidden border-4 border-white shadow-xl lg:absolute lg:top-4 lg:z-10 lg:right-[-320px] xl:right-[-251px] 2xl:right-[-314px] min-[1900px]:right-[-368px]"
@@ -188,6 +476,8 @@ function HomePage() {
 
       <section className="py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-6">
+          {flowError ? <p className="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{flowError}</p> : null}
+          {flowSuccess ? <p className="mb-4 rounded-md bg-green-50 px-4 py-3 text-sm text-green-700">{flowSuccess}</p> : null}
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div className="relative max-w-[520px] mx-auto lg:mx-0">
               <img src="/images/bluemen.svg" alt="Trust person" className="w-full max-w-[520px] mx-auto" />
@@ -211,17 +501,159 @@ function HomePage() {
                 <div className="flex gap-3"><img src="/images/star.svg" alt="Ratings" className="w-6 h-6 mt-1" /><div><h4 className="font-semibold text-slate-800">Trusted ratings and reviews</h4><p className="text-slate-600 text-sm">Pick the right person for the task based on real ratings and reviews from other users</p></div></div>
                 <div className="flex gap-3"><img src="/images/tick.svg" alt="Insurance" className="w-6 h-6 mt-1" /><div><h4 className="font-semibold text-slate-800">Insurance for peace of mind</h4><p className="text-slate-600 text-sm">We provide liability insurance for Taskers performing most task activities</p></div></div>
               </div>
-              <Link
-                to="/verified-tasker"
-                state={{ openBooking: true, returnTo: "/" }}
+              <button
+                type="button"
+                onClick={openBookingFlow}
                 className="mt-8 inline-flex items-center rounded-full bg-[#2f87d6] px-6 py-3 font-semibold text-white transition hover:bg-[#2478c4]"
               >
                 Post Your task for free &rarr;
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </section>
+
+      <div className={`${bookingOpen ? "flex" : "hidden"} fixed inset-0 z-[120] items-center justify-center bg-black/45 px-4`} onClick={(event) => { if (event.target === event.currentTarget) closeAllBookingModals(); }}>
+        <div className="w-full max-w-[660px] rounded-[18px] bg-white px-5 py-5 shadow-2xl sm:px-6">
+          <div className="flex items-start justify-between gap-4">
+            <h3 className="text-2xl font-semibold text-[#2f87d6] sm:text-3xl">Let&apos;s Start With Basics</h3>
+            <button type="button" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d5dfef] bg-[#f4f8ff] text-[#2f87d6]" onClick={closeAllBookingModals}>
+              <i className="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+
+          <form className="mt-4 space-y-3" onSubmit={(event) => event.preventDefault()}>
+            <div className="relative">
+              <select className="h-12 w-full appearance-none rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base text-[#1f2d6e] outline-none focus:border-[#2f87d6]" value={eventType} onChange={(event) => setEventType(event.target.value)}>
+                <option value="" disabled>Event Type</option>
+                <option>Wedding</option>
+                <option>Birthday</option>
+                <option>Corporate</option>
+                <option>Engagement</option>
+                <option>Moving</option>
+                <option>Cleaning</option>
+              </select>
+              <i className="fa-solid fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#1f3c87]"></i>
+            </div>
+
+            <div className="relative">
+              <select className="h-12 w-full appearance-none rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base text-[#1f2d6e] outline-none focus:border-[#2f87d6]" value={decorationSize} onChange={(event) => setDecorationSize(event.target.value)}>
+                <option value="" disabled>Decoration Size</option>
+                <option>Small</option>
+                <option>Medium</option>
+                <option>Large</option>
+              </select>
+              <i className="fa-solid fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#1f3c87]"></i>
+            </div>
+
+            <div className="relative">
+              <select disabled={loadingTaskers} className="h-12 w-full appearance-none rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 pr-10 text-base text-[#1f2d6e] outline-none focus:border-[#2f87d6] disabled:cursor-not-allowed disabled:opacity-60" value={selectedTaskerId} onChange={(event) => setSelectedTaskerId(event.target.value)}>
+                <option value="" disabled>
+                  {loadingTaskers ? "Loading taskers..." : "Select Tasker"}
+                </option>
+                {apiTaskers.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} (${Number(t.hourly_rate || 20).toFixed(2)}/hr)
+                  </option>
+                ))}
+              </select>
+              <i className="fa-solid fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-[#1f3c87]"></i>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <input type="date" value={bookingDate} onChange={(event) => setBookingDate(event.target.value)} className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 text-base outline-none focus:border-[#2f87d6]" />
+              <input type="time" value={bookingTime} onChange={(event) => setBookingTime(event.target.value)} className="h-12 w-full rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 text-base outline-none focus:border-[#2f87d6]" />
+            </div>
+
+            <textarea value={bookingDescription} onChange={(e) => setBookingDescription(e.target.value)} placeholder="Description" rows="3" className="w-full resize-none rounded-xl border border-[#dbe3f0] bg-[#f8fafc] px-4 py-3 text-base text-[#1f2d6e] outline-none placeholder:text-[#1f2d6e] focus:border-[#2f87d6]"></textarea>
+
+            <button type="button" disabled={loadingBooking} className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-full bg-[#2f87d6] text-lg font-semibold text-white hover:bg-[#2678bf] disabled:opacity-70" onClick={confirmBooking}>
+              {loadingBooking ? "Creating Booking..." : "Confirm Book"}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className={`${bookingSummaryOpen ? "flex" : "hidden"} fixed inset-0 z-[130] items-center justify-center bg-black/45 px-4`} onClick={(event) => { if (event.target === event.currentTarget) closeAllBookingModals(); }}>
+        <div className="w-full max-w-[760px] rounded-[20px] bg-white px-6 py-6 shadow-2xl sm:px-7">
+          <div className="relative">
+            <h3 className="text-center text-2xl font-semibold text-[#2f87d6]">Booking Summary</h3>
+            <button type="button" className="absolute -top-1 right-0 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#d5dfef] bg-[#f4f8ff] text-[#2f87d6]" onClick={closeAllBookingModals}>
+              <i className="fa-solid fa-xmark text-lg"></i>
+            </button>
+          </div>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <article className="rounded-xl border border-[#d7dde9] bg-white shadow-sm">
+              <div className="rounded-t-xl bg-[#eef3fb] px-5 py-3 text-md font-semibold text-[#2f87d6]">{eventType || "Service"}</div>
+              <div className="px-5 py-4 text-[#1f2d6e]">
+                <h4 className="text-md font-semibold">Selected Options</h4>
+                <ul className="mt-3 space-y-2 text-sm">
+                  <li>Event Type: {eventType || "-"}</li>
+                  <li>Decoration Size: {decorationSize || "-"}</li>
+                  <li>City: {location}</li>
+                </ul>
+              </div>
+            </article>
+            <article className="rounded-xl border border-[#d7dde9] bg-white shadow-sm">
+              <div className="rounded-t-xl bg-[#eef3fb] px-5 py-3 text-md font-semibold text-[#2f87d6]">Selected Tasker</div>
+              <div className="px-5 py-4">
+                <p className="text-md font-semibold text-[#1f2d6e]">{selectedTasker?.name || "-"}</p>
+                <p className="mt-2 text-sm text-[#1f2d6e]">Rating: {selectedTasker?.average_rating || "4.8"}</p>
+                <p className="mt-1 text-sm text-[#1f2d6e]">Rate: ${selectedPrice.toFixed(2)}/hr</p>
+                <div className="mt-3 h-px w-full bg-[#d8dce5]"></div>
+                <p className="mt-3 text-md font-semibold text-[#1f2d6e]">Total Price : ${selectedPrice.toFixed(2)}</p>
+              </div>
+            </article>
+          </div>
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <button type="button" disabled={payingNow} className="inline-flex h-12 min-w-[190px] items-center justify-center rounded-full bg-[#2f87d6] px-8 text-md font-semibold text-white disabled:opacity-70" onClick={payNow}>{payingNow ? "Processing..." : "Pay Now"}</button>
+            <span className="text-4xl text-[#2f87d6]">Or</span>
+            <button type="button" disabled={payingAfter} onClick={payAfterService} className="inline-flex h-12 min-w-[260px] items-center justify-center rounded-full border-2 border-[#2f87d6] px-8 text-md font-semibold text-[#2f87d6] disabled:opacity-70">{payingAfter ? "Processing..." : "Pay After Service"}</button>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${taskArrivedOpen ? "flex" : "hidden"} fixed inset-0 z-[140] items-center justify-center bg-black/45 px-4`} onClick={(event) => { if (event.target === event.currentTarget) closeAllBookingModals(); }}>
+        <div className="w-full max-w-[680px] rounded-[22px] bg-white px-5 py-6 shadow-2xl sm:px-8">
+          <div className="flex justify-end">
+            <button type="button" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d5dfef] bg-white text-[#2f87d6] shadow" onClick={closeAllBookingModals}>
+              <i className="fa-solid fa-xmark text-xl"></i>
+            </button>
+          </div>
+          <div className="-mt-2 text-center">
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-[#2f87d6] text-white"><i className="fa-solid fa-check relative -translate-y-[2px] text-5xl"></i></div>
+            <h3 className="mt-4 text-4xl font-semibold text-[#1f2d6e]">Task Arrived</h3>
+            <p className="mt-3 text-2xl font-semibold text-[#1f2d6e]">Your OTP</p>
+            <div className="mt-5 grid grid-cols-4 gap-3 sm:mx-auto sm:max-w-[420px] sm:gap-3">
+              {arrivedOtp.map((digit, idx) => (
+                <div key={`arrived-${idx}`} className="flex h-[72px] items-center justify-center rounded-[18px] border border-[#e2e6ef] text-3xl font-semibold text-[#364154] shadow-[0_10px_18px_rgba(47,135,214,0.12)]">{digit}</div>
+              ))}
+            </div>
+            <p className="mt-5 text-2xl text-[#3f5a91]">Share This OTP With The Tasker</p>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${customerOtpOpen ? "flex" : "hidden"} fixed inset-0 z-[150] items-center justify-center bg-black/45 px-4`} onClick={(event) => { if (event.target === event.currentTarget) closeAllBookingModals(); }}>
+        <div className="w-full max-w-[680px] rounded-[22px] bg-white px-5 py-6 shadow-2xl sm:px-8">
+          <div className="flex justify-end">
+            <button type="button" className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#d5dfef] bg-white text-[#2f87d6] shadow" onClick={closeAllBookingModals}>
+              <i className="fa-solid fa-xmark text-xl"></i>
+            </button>
+          </div>
+          <div className="mt-1 text-center">
+            <h3 className="text-4xl font-semibold text-[#1f2d6e]">Enter Customer OTP</h3>
+            <p className="mt-3 text-2xl font-semibold text-[#1f2d6e]">Your OTP</p>
+            <div className="mt-5 grid grid-cols-4 gap-3 sm:mx-auto sm:max-w-[420px] sm:gap-3">
+              {customerOtp.map((digit, idx) => (
+                <div key={`customer-${idx}`} className="flex h-[72px] items-center justify-center rounded-[18px] border border-[#e2e6ef] text-3xl font-semibold text-[#364154] shadow-[0_10px_18px_rgba(47,135,214,0.12)]">{digit}</div>
+              ))}
+            </div>
+            <p className="mt-5 text-2xl text-[#3f5a91]">Share This OTP With The Tasker</p>
+            <button type="button" className="mt-4 inline-flex h-12 min-w-[210px] items-center justify-center rounded-full bg-[#2f87d6] px-7 text-md font-semibold text-white hover:bg-[#2678bf]" onClick={() => { setCustomerOtpOpen(false); setFlowSuccess("OTP shared. Tasker can verify and start work from Tasker Dashboard."); }}>Verify & Start Work</button>
+          </div>
+        </div>
+      </div>
 
       <section className="py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-6">
@@ -282,9 +714,9 @@ function HomePage() {
                 <div className="rounded-[12px] overflow-hidden bg-[#1f3f88]">
                   <img src={`/images/${item.image}`} alt={item.title} className="h-[250px] w-full object-cover" />
                   <div className="-mt-4 px-3 pb-3 relative z-10">
-                    <div className="h-12 rounded-[12px] bg-[#f1f4fa] px-5 flex items-center justify-between font-semibold text-[#1f2d6e]">
-                      <span>{item.title}</span>
-                      {item.price}
+                    <div className="h-12 rounded-[16px] bg-[#f1f4fa] px-3 flex items-center justify-between font-semibold text-[#1f2d6e]">
+                      <span className="rounded-full border border-[#e2e8f4] bg-white px-4 py-1.5 shadow-sm">{item.title}</span>
+                      <span className="rounded-full px-3 py-1">{item.price}</span>
                     </div>
                   </div>
                 </div>

@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 function RegisterPage() {
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState("");
+
+  const handleContinue = () => {
+    if (!selectedRole) return;
+    navigate(`/signup?role=${selectedRole}`);
+  };
 
   return (
     <div className="bg-[#eceef2] text-slate-900">
@@ -101,6 +107,7 @@ function RegisterPage() {
 
             <button
               type="button"
+              onClick={handleContinue}
               disabled={!selectedRole}
               className={`mt-6 h-12 w-full rounded-full text-lg sm:text-xl font-semibold text-white ${
                 selectedRole

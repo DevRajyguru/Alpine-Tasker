@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 
 const featuredCategories = [
   { image: "/images/cleaning.svg", title: "Snow Cleaning", price: "$45.00/hr", type: "Cleaning", location: "Dubai" },
@@ -43,9 +44,37 @@ const faqItems = [
 ];
 
 function ServicesPage() {
+  const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("All Category");
   const [locationSearch, setLocationSearch] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState([
+    "All Category",
+    "Cleaning",
+    "Gardening",
+    "Mounting",
+    "Assembly",
+    "Moving",
+    "Decoration",
+  ]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("alpine_token");
+    if (!token) return;
+
+    (async () => {
+      try {
+        const res = await api.get("/categories");
+        const rows = Array.isArray(res.data?.categories) ? res.data.categories : [];
+        const names = rows.map((row) => row?.name).filter(Boolean);
+        if (names.length) {
+          setCategoryOptions(["All Category", ...names]);
+        }
+      } catch {
+        // Keep default category options for guest/non-consented sessions.
+      }
+    })();
+  }, []);
 
   const filteredCategories = useMemo(() => {
     return featuredCategories.filter((item) => {
@@ -56,6 +85,35 @@ function ServicesPage() {
       return byType && byLocation;
     });
   }, [selectedCategory, locationSearch]);
+
+  const handleSearch = () => {
+    const guestToken = (() => {
+      const existing = localStorage.getItem("alpine_guest_token");
+      if (existing) return existing;
+      const created = `guest_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem("alpine_guest_token", created);
+      return created;
+    })();
+
+    api
+      .post("/search-events", {
+        category: selectedCategory,
+        location: locationSearch || "",
+        source: "services_search",
+        guest_token: localStorage.getItem("alpine_token") ? null : guestToken,
+      })
+      .catch(() => {
+        // Keep UX moving even if analytics logging fails.
+      })
+      .finally(() => {
+        navigate("/verified-tasker", {
+          state: {
+            searchCategory: selectedCategory === "All Category" ? "" : selectedCategory,
+            searchLocation: locationSearch || "",
+          },
+        });
+      });
+  };
 
   return (
     <>
@@ -83,13 +141,9 @@ function ServicesPage() {
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="h-11 w-full appearance-none rounded-full border border-[#d9dfeb] bg-white px-4 pr-10 text-sm text-[#1f437c] outline-none transition focus:border-[#2d86d8] sm:w-40"
                 >
-                  <option>All Category</option>
-                  <option>Cleaning</option>
-                  <option>Gardening</option>
-                  <option>Mounting</option>
-                  <option>Assembly</option>
-                  <option>Moving</option>
-                  <option>Decoration</option>
+                  {categoryOptions.map((item) => (
+                    <option key={item}>{item}</option>
+                  ))}
                 </select>
                 <i className="fa-solid fa-chevron-down pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#1f437c]"></i>
               </div>
@@ -103,7 +157,11 @@ function ServicesPage() {
                   onChange={(e) => setLocationSearch(e.target.value)}
                   className="ml-2 w-full bg-transparent text-sm text-[#2d4f8f] placeholder:text-[#2d4f8f] outline-none"
                 />
-                <button className="inline-flex h-10 min-w-[122px] items-center justify-center gap-1 rounded-full bg-[#2d86d8] px-5 text-sm font-medium leading-none text-white whitespace-nowrap transition hover:bg-[#2578c4]">
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="inline-flex h-10 min-w-[122px] items-center justify-center gap-1 rounded-full bg-[#2d86d8] px-5 text-sm font-medium leading-none text-white whitespace-nowrap transition hover:bg-[#2578c4]"
+                >
                   <i className="fa-solid fa-magnifying-glass text-xs"></i>
                   <span>Search</span>
                 </button>
